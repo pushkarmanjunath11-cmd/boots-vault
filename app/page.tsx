@@ -6,9 +6,19 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { useCart } from "./context/CartContext";
 
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  sizes?: Record<string, number>;
+  featured?: boolean;
+};
+
 export default function Home() {
 
-const [products,setProducts] = useState<any[]>([]);
+const [products,setProducts] = useState<Product[]>([]);
 const [selectedCategory, setSelectedCategory] = useState("all");
 const { cart, setCart } = useCart();
 
@@ -21,7 +31,7 @@ const querySnapshot = await getDocs(collection(db,"products"));
 const productList = querySnapshot.docs.map(doc=>({
 id: doc.id,
 ...doc.data()
-}));
+})) as Product[];
 
 setProducts(productList);
 }
@@ -30,43 +40,55 @@ fetchProducts();
 
 },[]);
 
+
+// ⭐ ONLY FEATURED PRODUCTS
+const featuredProducts = products.filter(p => p.featured);
+
+
+// ⭐ CATEGORY FILTER
+const filteredProducts = featuredProducts.filter(product =>
+selectedCategory === "all"
+? true
+: product.category === selectedCategory
+);
+
+
 return (
 
-<div style={{padding:"40px"}}>
-
-{/* TOP BAR */}
 <div style={{
-background:"#0f1115",
-color:"#fff",
-display:"flex",
-justifyContent:"center",
-gap:"40px",
-padding:"10px",
-fontSize:"14px",
-borderBottom:"1px solid rgba(255,255,255,0.05)"
+padding:"20px",
+background:"#0b0d11",
+minHeight:"100vh"
 }}>
 
+{/* TOP STRIP */}
+<div style={{
+display:"flex",
+justifyContent:"center",
+gap:"20px",
+flexWrap:"wrap",
+fontSize:"13px",
+color:"#aaa",
+marginBottom:"10px"
+}}>
 <span>🚚 Fast Delivery</span>
 <span>✔ Authentic Products</span>
 <span>💬 WhatsApp Support</span>
 <span>🔁 Easy Returns</span>
-
 </div>
 
 
 {/* HERO */}
 <div style={{
-height:"280px",
-background:"linear-gradient(135deg, #111, #222)",
+padding:"50px 20px",
+borderRadius:"16px",
+background:"linear-gradient(135deg,#111,#1a1f2b)",
 color:"white",
-display:"flex",
-flexDirection:"column",
-justifyContent:"center",
-padding:"60px"
+marginBottom:"40px"
 }}>
 
 <h1 style={{
-fontSize:"64px",
+fontSize:"clamp(32px,6vw,60px)",
 margin:0,
 fontWeight:"800"
 }}>
@@ -74,84 +96,57 @@ Dominate The Pitch
 </h1>
 
 <p style={{
-fontSize:"20px",
-opacity:0.8,
+opacity:0.7,
 marginTop:"10px"
 }}>
-Elite Football Boots. Built for Speed.
+Elite Football Boots Built For Speed ⚡
 </p>
 
 </div>
 
 
-{/* TITLE */}
-<h2 style={{
-fontSize:"32px",
-fontWeight:"700",
-marginTop:"60px",
-marginBottom:"20px",
-paddingLeft:"40px"
-}}>
-Featured Products
-</h2>
-
-
-{/* CATEGORY BUTTONS */}
+{/* CATEGORY FILTER */}
 <div style={{
 display:"flex",
-gap:"12px",
-padding:"20px 40px",
-flexWrap:"wrap"
+gap:"10px",
+flexWrap:"wrap",
+marginBottom:"30px"
 }}>
 
-{["all","boots","jerseys","gloves","jackets","balls","gear"].map((cat)=>(
-
+{["all","boots","jerseys","gloves","jackets","balls","gear"].map(cat=>(
 <button
 key={cat}
 onClick={()=>setSelectedCategory(cat)}
-
 style={{
-padding:"10px 20px",
+padding:"8px 18px",
 borderRadius:"999px",
-border:"1px solid rgba(255,255,255,0.08)",
+border:"1px solid #222",
+background:selectedCategory===cat ? "#fff" : "transparent",
+color:selectedCategory===cat ? "#000" : "#aaa",
 cursor:"pointer",
-background:selectedCategory===cat ? "#ffffff" : "transparent",
-color:selectedCategory===cat ? "#000" : "#fff",
 fontWeight:"600"
 }}
 >
 {cat.toUpperCase()}
 </button>
-
 ))}
 
 </div>
 
 
-{/* PRODUCTS GRID */}
-<div style={{
-maxWidth:"1200px",
-margin:"0 auto"
-}}>
 
+{/* PRODUCT GRID */}
 <div style={{
 display:"grid",
-gridTemplateColumns:"repeat(auto-fit, minmax(260px,1fr))",
-gap:"28px"
+gridTemplateColumns:"repeat(auto-fit, minmax(180px,1fr))",
+gap:"22px"
 }}>
 
-{products
-.filter((product)=>product.featured) // ⭐ ONLY FEATURED
-.filter((product)=>
-selectedCategory==="all"
-? true
-: product.category===selectedCategory
-)
-.map((product)=>{
+{filteredProducts.map(product=>{
 
-// ✅ REAL stock check from sizes
+// ⭐ STOCK CHECK FROM SIZES
 const isOutOfStock = Object.values(product.sizes || {}).every(
-(qty)=> Number(qty) === 0
+qty => Number(qty) === 0
 );
 
 return(
@@ -159,62 +154,61 @@ return(
 <Link href={`/product/${product.id}`} key={product.id}>
 
 <div style={{
-padding:"16px",
+background:"#11151c",
+padding:"14px",
 borderRadius:"14px",
 cursor:"pointer",
-background:"#0f1115",
-boxShadow:"0 10px 30px rgba(0,0,0,0.25)",
-transition:"all 0.25s ease",
-overflow:"hidden"
+transition:"0.25s"
 }}>
 
 <img
 src={product.image}
 style={{
 width:"100%",
-height:"320px",
-objectFit:"contain",
-background:"#0f1115",
-borderRadius:"12px"
+height:"200px",
+objectFit:"contain"
 }}
 />
 
 <h3 style={{
-color:"#ffffff",
-fontSize:"18px",
-marginTop:"12px"
+color:"#fff",
+fontSize:"16px",
+marginTop:"10px"
 }}>
 {product.name}
 </h3>
 
 <p style={{
 color:"#9ca3af",
-fontWeight:"600",
-marginTop:"6px"
+fontWeight:"600"
 }}>
 ₹{product.price}
 </p>
+
 
 <button
 disabled={isOutOfStock}
 onClick={(e)=>{
 e.preventDefault();
+if(isOutOfStock) return;
 setCart([...cart, product]);
 }}
 
 style={{
-marginTop:"10px",
+marginTop:"8px",
 width:"100%",
 padding:"10px",
-background: isOutOfStock ? "#444" : "#fff",
-color: isOutOfStock ? "#999" : "#000",
-border:"none",
 borderRadius:"8px",
-fontWeight:"600",
-cursor: isOutOfStock ? "not-allowed" : "pointer"
+border:"none",
+fontWeight:"700",
+background:isOutOfStock ? "#333" : "#fff",
+color:isOutOfStock ? "#777" : "#000",
+cursor:isOutOfStock ? "not-allowed" : "pointer"
 }}
 >
-{isOutOfStock ? "Out of Stock" : "Add to Cart"}
+
+{isOutOfStock ? "Out of Stock" : "Add To Cart"}
+
 </button>
 
 </div>
@@ -226,7 +220,7 @@ cursor: isOutOfStock ? "not-allowed" : "pointer"
 })}
 
 </div>
-</div>
+
 </div>
 
 );
