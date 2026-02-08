@@ -67,7 +67,7 @@ const filteredProducts = products.filter(product=>{
 
 // Homepage → featured only
 if(selectedCategory === "all"){
-return product.featured === true;
+return product.featured;
 }
 
 // Category pages → show all

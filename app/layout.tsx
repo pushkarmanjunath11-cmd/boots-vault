@@ -29,21 +29,6 @@ export default function RootLayout({
 <html lang="en">
 <body style={{margin:0,fontFamily:"sans-serif"}}>
 
-<div style={{
-display:"flex",
-justifyContent:"space-between",
-alignItems:"center",
-marginTop:"8px",
-padding:"8px 40px",
-background:"#0b0d12",
-borderBottom:"1px solid rgba(255,255,255,0.05)",
-position:"sticky",
-top:"0",
-zIndex:"999"
-}}>
-
-</div>
-
 <CartProvider>
 
 <Navbar />

@@ -24,10 +24,6 @@ const [price,setPrice] = useState("");
 const [image,setImage] = useState("");
 const [category,setCategory] = useState("boots");
 const [featured,setFeatured] = useState(false);
-const resetSizes = Object.fromEntries(
-  sizeMap["boots"].map((size:string)=>[size,""])
-);
-setSizes(resetSizes);
 const [sizes,setSizes] = useState<Record<string,number>>({});
 
 /* ---------------- AUTO SIZE CHANGE ---------------- */
@@ -53,8 +49,15 @@ alert("Fill all fields!");
 return;
 }
 
-// ✅ stop zero-stock products
-if(Object.values(sizes).every(qty => qty <= 0)){
+const formattedSizes = Object.fromEntries(
+Object.entries(sizes).map(([size,qty])=>[
+size,
+Number(qty) || 0
+])
+);
+
+// stop zero-stock products
+if(Object.values(formattedSizes).every(qty => qty <= 0)){
 alert("Add stock before creating product");
 return;
 }
@@ -64,21 +67,18 @@ name,
 price:Number(price),
 image,
 category,
-sizes,
+sizes:formattedSizes,
 featured,
 createdAt:new Date()
 });
 
 alert("✅ Product Added!");
 
-/* RESET FORM */
-
 setName("");
 setPrice("");
 setImage("");
 setFeatured(false);
-setCategory("boots");
-
+setCategory("boots"); // useEffect resets sizes
 }
 
 return(
