@@ -1,40 +1,92 @@
-"use client";
+'use client';
 
 import { createContext, useContext, useState } from "react";
 
-type Product = {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  category?: string;
-  featured?: boolean;
-  sizes?: Record<string, number>;
+type CartItem = {
+  id:string;
+  name:string;
+  price:number;
+  image?:string;
+  images?:string[];
+  selectedSize?:string;
+  quantity:number;
 };
 
 type CartContextType = {
-cart: Product[];
-setCart: React.Dispatch<React.SetStateAction<Product[]>>;
+  cart:CartItem[];
+  addToCart:(product:any, size?:string)=>void;
+  removeFromCart:(id:string, size?:string)=>void;
+  clearCart:()=>void;
+  total:number;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
-const [cart, setCart] = useState<Product[]>([]);
+export function CartProvider({children}:{children:React.ReactNode}){
 
-return (
-<CartContext.Provider value={{ cart, setCart }}>
+const [cart,setCart] = useState<CartItem[]>([]);
+
+/* ADD */
+
+function addToCart(product:any, size?:string){
+
+setCart(prev=>{
+
+const existing = prev.find(
+item => item.id === product.id && item.selectedSize === size
+);
+
+if(existing){
+return prev.map(item =>
+item.id === product.id && item.selectedSize === size
+? {...item, quantity:item.quantity+1}
+: item
+);
+}
+
+return [
+...prev,
+{...product, selectedSize:size, quantity:1}
+];
+
+});
+}
+
+/* REMOVE */
+
+function removeFromCart(id:string,size?:string){
+setCart(prev =>
+prev.filter(item =>
+!(item.id===id && item.selectedSize===size)
+)
+);
+}
+
+/* TOTAL */
+
+const total = cart.reduce(
+(sum,item)=>sum + item.price * item.quantity,0
+);
+
+function clearCart(){
+setCart([]);
+}
+
+return(
+<CartContext.Provider value={{
+cart,
+addToCart,
+removeFromCart,
+clearCart,
+total
+}}>
 {children}
 </CartContext.Provider>
 );
 }
 
-export function useCart() {
-const context = useContext(CartContext);
-
-if (!context) {
-throw new Error("useCart must be used inside CartProvider");
-}
-
-return context;
+export function useCart(){
+const ctx = useContext(CartContext);
+if(!ctx) throw new Error("CartProvider missing");
+return ctx;
 }

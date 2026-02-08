@@ -6,48 +6,55 @@ import { collection, addDoc } from "firebase/firestore";
 
 export default function AdminPage(){
 
-/* ---------------- SIZES ---------------- */
+/* ---------------- SIZE MAP ---------------- */
 
 const sizeMap:any = {
-  boots:["6","6.5","7","7.5","8","8.5","9","9.5","10","10.5","11"],
-  jerseys:["S","M","L","XL"],
-  gloves:["7","8","9","10"],
-  jackets:["S","M","L","XL"],
-  balls:["3","4","5"],
-  gear:["Standard"]
+boots:["6","6.5","7","7.5","8","8.5","9","9.5","10","10.5","11"],
+jerseys:["S","M","L","XL"],
+gloves:["7","8","9","10"],
+jackets:["S","M","L","XL"],
+balls:["3","4","5"],
+gear:["Standard"]
 };
 
 /* ---------------- STATE ---------------- */
 
 const [name,setName] = useState("");
 const [price,setPrice] = useState("");
-const [image,setImage] = useState("");
 const [category,setCategory] = useState("boots");
 const [featured,setFeatured] = useState(false);
 const [sizes,setSizes] = useState<Record<string,number>>({});
+const [images,setImages] = useState<string[]>([""]);
 
-/* ---------------- AUTO SIZE CHANGE ---------------- */
+
+/* ---------------- AUTO SIZE RESET ---------------- */
 
 useEffect(()=>{
 
 const selectedSizes = sizeMap[category];
 
 const emptyStock = Object.fromEntries(
-selectedSizes.map((size:string)=>[size,""])
+selectedSizes.map((size:string)=>[size,0])
 );
 
 setSizes(emptyStock);
 
 },[category]);
 
+
+
 /* ---------------- ADD PRODUCT ---------------- */
 
 async function addProduct(){
 
-if(!name || !price || !image){
+const cleanImages = images.filter(img => img.trim() !== "");
+
+if(!name || !price || cleanImages.length === 0){
 alert("Fill all fields!");
 return;
 }
+
+/* format sizes safely */
 
 const formattedSizes = Object.fromEntries(
 Object.entries(sizes).map(([size,qty])=>[
@@ -56,7 +63,8 @@ Number(qty) || 0
 ])
 );
 
-// stop zero-stock products
+/* stop zero stock */
+
 if(Object.values(formattedSizes).every(qty => qty <= 0)){
 alert("Add stock before creating product");
 return;
@@ -65,7 +73,7 @@ return;
 await addDoc(collection(db,"products"),{
 name,
 price:Number(price),
-image,
+images: cleanImages,
 category,
 sizes:formattedSizes,
 featured,
@@ -74,16 +82,27 @@ createdAt:new Date()
 
 alert("✅ Product Added!");
 
+/* -------- RESET FORM -------- */
+
 setName("");
 setPrice("");
-setImage("");
 setFeatured(false);
-setCategory("boots"); // useEffect resets sizes
+setCategory("boots"); 
+setImages([""]);   // resets image inputs
+
+// sizes auto reset via useEffect
 }
+
+
+/* ---------------- UI ---------------- */
 
 return(
 
-<div style={{padding:"40px",color:"white"}}>
+<div style={{
+padding:"40px",
+color:"white",
+minHeight:"100vh"
+}}>
 
 <h1>OWNER DASHBOARD</h1>
 
@@ -126,11 +145,36 @@ value={price}
 onChange={(e)=>setPrice(e.target.value)}
 />
 
+
+{/* ---------- IMAGES ---------- */}
+
+<h3>Product Images</h3>
+
+{images.map((img,index)=>(
+
 <input
-placeholder="Image URL"
-value={image}
-onChange={(e)=>setImage(e.target.value)}
+key={index}
+placeholder={`Image ${index+1} URL`}
+value={img}
+onChange={(e)=>{
+const updated = [...images];
+updated[index] = e.target.value;
+setImages(updated);
+}}
 />
+
+))}
+
+<button
+onClick={()=>setImages([...images,""])}
+style={{padding:"6px"}}
+>
++ Add Another Image
+</button>
+
+
+
+{/* ---------- FEATURED ---------- */}
 
 <label>
 <input
@@ -141,13 +185,17 @@ onChange={(e)=>setFeatured(e.target.checked)}
  Featured Product
 </label>
 
+
+
+{/* ---------- STOCK ---------- */}
+
 <h3>Stock</h3>
 
 {Object.keys(sizes).map(size => (
 
 <input
 key={size}
-placeholder={`Size ${size} stock`}
+placeholder={`Size ${size}`}
 value={sizes[size] || ""}
 onChange={(e)=>
 setSizes({
@@ -158,6 +206,8 @@ setSizes({
 />
 
 ))}
+
+
 
 <button
 onClick={addProduct}
@@ -170,9 +220,7 @@ fontWeight:"700",
 cursor:"pointer"
 }}
 >
-
 Add Product
-
 </button>
 
 </div>

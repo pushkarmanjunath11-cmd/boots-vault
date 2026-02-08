@@ -5,28 +5,15 @@ import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { useCart } from "./context/CartContext";
-
-/* ---------------- TYPE ---------------- */
-
-type Product = {
-  id:string;
-  name:string;
-  price:number;
-  image:string;
-  category:string;
-  sizes?:Record<string,number>;
-  featured?:boolean;
-};
-
-/* ---------------- COMPONENT ---------------- */
+import { Product } from "@/types/Product";
 
 export default function Home(){
 
 const [products,setProducts] = useState<Product[]>([]);
 const [selectedCategory,setSelectedCategory] = useState("all");
-const { cart, setCart } = useCart();
+const {cart, addToCart, removeFromCart} = useCart();
 
-/* ---------------- FETCH ---------------- */
+/* ---------- FETCH ---------- */
 
 useEffect(()=>{
 
@@ -47,36 +34,31 @@ fetchProducts();
 },[]);
 
 
-/* ---------------- STOCK CHECK (VERY IMPORTANT) ---------------- */
+/* ---------- STOCK CHECK ---------- */
 
 function isOutOfStock(product:Product){
 
 if(!product.sizes) return true;
 
-const quantities = Object.values(product.sizes);
+return Object.values(product.sizes).every((qty:number)=> qty <= 0);
 
-if(quantities.length === 0) return true;
-
-return quantities.every(qty => Number(qty) <= 0);
 }
 
 
-/* ---------------- FILTER ---------------- */
+/* ---------- FILTER ---------- */
 
 const filteredProducts = products.filter(product=>{
 
-// Homepage → featured only
 if(selectedCategory === "all"){
-return product.featured;
+return product.featured === true;
 }
 
-// Category pages → show all
 return product.category === selectedCategory;
 
 });
 
 
-/* ---------------- UI ---------------- */
+/* ---------- UI ---------- */
 
 return(
 
@@ -86,52 +68,28 @@ background:"#0b0d11",
 minHeight:"100vh"
 }}>
 
-{/* TOP BAR */}
-
-<div style={{
-display:"flex",
-justifyContent:"center",
-gap:"20px",
-flexWrap:"wrap",
-fontSize:"13px",
-color:"#aaa",
-marginBottom:"10px"
-}}>
-<span>🚚 Fast Delivery</span>
-<span>✔ Authentic Products</span>
-<span>💬 WhatsApp Support</span>
-<span>🔁 Easy Returns</span>
-</div>
-
-
-
 {/* HERO */}
 
 <div style={{
-padding:"50px 20px",
-borderRadius:"16px",
+padding:"40px 20px",
+borderRadius:"14px",
 background:"linear-gradient(135deg,#111,#1a1f2b)",
 color:"white",
-marginBottom:"40px"
+marginBottom:"30px"
 }}>
 
 <h1 style={{
-fontSize:"clamp(32px,6vw,60px)",
-margin:0,
-fontWeight:"800"
+fontSize:"clamp(28px,5vw,52px)",
+margin:0
 }}>
 Dominate The Pitch
 </h1>
 
-<p style={{
-opacity:0.7,
-marginTop:"10px"
-}}>
+<p style={{opacity:0.7}}>
 Elite Football Boots Built For Speed ⚡
 </p>
 
 </div>
-
 
 
 {/* CATEGORY */}
@@ -140,7 +98,7 @@ Elite Football Boots Built For Speed ⚡
 display:"flex",
 gap:"10px",
 flexWrap:"wrap",
-marginBottom:"30px"
+marginBottom:"25px"
 }}>
 
 {["all","boots","jerseys","gloves","jackets","balls","gear"].map(cat=>(
@@ -149,13 +107,12 @@ marginBottom:"30px"
 key={cat}
 onClick={()=>setSelectedCategory(cat)}
 style={{
-padding:"8px 18px",
+padding:"8px 16px",
 borderRadius:"999px",
 border:"1px solid #222",
 background:selectedCategory===cat ? "#fff" : "transparent",
 color:selectedCategory===cat ? "#000" : "#aaa",
-cursor:"pointer",
-fontWeight:"600"
+cursor:"pointer"
 }}
 >
 {cat.toUpperCase()}
@@ -166,13 +123,12 @@ fontWeight:"600"
 </div>
 
 
-
 {/* GRID */}
 
 <div style={{
 display:"grid",
-gridTemplateColumns:"repeat(auto-fit, minmax(180px,1fr))",
-gap:"22px"
+gridTemplateColumns:"repeat(auto-fit, minmax(220px,1fr))",
+gap:"18px"
 }}>
 
 {filteredProducts.map(product=>{
@@ -185,51 +141,28 @@ return(
 
 <div style={{
 background:"#11151c",
-padding:"16px",
-borderRadius:"14px",
-position:"relative",
+padding:"14px",
+borderRadius:"12px",
 cursor:"pointer"
 }}>
 
-{/* FEATURED BADGE */}
-
-{product.featured && (
-<div style={{
-position:"absolute",
-top:"12px",
-left:"12px",
-background:"#22c55e",
-color:"#fff",
-padding:"6px 12px",
-borderRadius:"8px",
-fontSize:"12px",
-fontWeight:"700"
-}}>
-Featured
-</div>
-)}
-
 <img
-src={product.image}
+src={product.images?.[0] || product.image}
 style={{
 width:"100%",
-height:"200px",
+height:"180px",
 objectFit:"contain"
 }}
 />
 
 <h3 style={{
 color:"#fff",
-fontSize:"16px",
-marginTop:"10px"
+fontSize:"15px"
 }}>
 {product.name}
 </h3>
 
-<p style={{
-color:"#9ca3af",
-fontWeight:"600"
-}}>
+<p style={{color:"#9ca3af"}}>
 ₹{product.price}
 </p>
 
@@ -238,22 +171,22 @@ disabled={out}
 onClick={(e)=>{
 e.preventDefault();
 if(out) return;
-setCart([...cart,product]);
+addToCart(product);
 }}
 style={{
-marginTop:"8px",
+marginTop:"6px",
 width:"100%",
-padding:"10px",
-borderRadius:"8px",
+padding:"8px",
+borderRadius:"6px",
 border:"none",
-fontWeight:"700",
-background:out ? "#333" : "#fff",
-color:out ? "#777" : "#000",
-cursor:out ? "not-allowed" : "pointer"
+background: out ? "#1a1a1a" : "#ffffff",
+color: out ? "#666" : "#000",
+opacity: out ? 0.6 : 1,
+cursor:out ? "not-allowed":"pointer"
 }}
 >
 
-{out ? "Out of Stock" : "Add To Cart"}
+{out ? "Out of Stock":"Add To Cart"}
 
 </button>
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import CartDrawer from "./CartDrawer";
 import { useCart } from "../context/CartContext";
+import Link from "next/link";
 
 export default function Navbar() {
 
@@ -23,9 +24,15 @@ top:0,
 zIndex:999
 }}>
 
-<div style={{fontWeight:"bold",fontSize:"20px"}}>
+<Link href="/" style={{
+textDecoration:"none",
+color:"white",
+fontWeight:"800",
+fontSize:"22px",
+cursor:"pointer"
+}}>
 Boots Vault
-</div>
+</Link>
 
 <div style={{
 display:"flex",
