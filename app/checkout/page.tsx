@@ -1,64 +1,44 @@
 'use client';
 
-import { useCart } from "@/app/context/CartContext";
+import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
 
 export default function CheckoutPage(){
 
-const { cart, removeFromCart, clearCart } = useCart();
+const { cart, clearCart, removeFromCart } = useCart();
 const router = useRouter();
 
-/* ✅ TOTAL */
+/* ---------- TOTAL ---------- */
+
 const total = cart.reduce((sum,item)=> sum + item.price,0);
 
-/* ✅ PLACE ORDER (Razorpay will go here later) */
-function handleCheckout(){
+/* ---------- EMPTY CART ---------- */
 
 if(cart.length === 0){
-alert("Your cart is empty");
-return;
-}
-
-/* TEMP SUCCESS FLOW */
-alert("Order placed! (Next step = Razorpay)");
-
-clearCart();
-router.push("/");
-}
-
 return(
 
 <div style={{
-padding:"40px",
 minHeight:"100vh",
+display:"flex",
+justifyContent:"center",
+alignItems:"center",
 background:"#0b0d11",
 color:"white"
 }}>
 
-<h1>Checkout</h1>
+<div style={{textAlign:"center"}}>
 
-{/* EMPTY CART */}
-
-{cart.length === 0 && (
-
-<div style={{
-marginTop:"40px",
-padding:"30px",
-background:"#111",
-borderRadius:"12px"
-}}>
-<h2>Your cart is empty</h2>
+<h1>Your cart is empty</h1>
 
 <button
 onClick={()=>router.push("/")}
-
 style={{
 marginTop:"20px",
 padding:"12px 20px",
 background:"#22c55e",
 border:"none",
 borderRadius:"8px",
-fontWeight:"600",
+fontWeight:"700",
 cursor:"pointer"
 }}
 >
@@ -66,38 +46,51 @@ Continue Shopping
 </button>
 
 </div>
+</div>
+);
+}
 
-)}
+/* ---------- UI ---------- */
 
+return(
 
-{/* CART ITEMS */}
-
-{cart.length > 0 && (
-
-<>
 <div style={{
-marginTop:"30px",
-display:"grid",
-gap:"20px"
+padding:"40px",
+background:"#0b0d11",
+minHeight:"100vh",
+color:"white"
+}}>
+
+<h1 style={{marginBottom:"30px"}}>Checkout</h1>
+
+
+{/* ITEMS */}
+
+<div style={{
+display:"flex",
+flexDirection:"column",
+gap:"18px"
 }}>
 
 {cart.map((item,index)=>(
 
-<div key={index} style={{
+<div
+key={item.id + item.size}
+style={{
 display:"flex",
-gap:"20px",
+gap:"16px",
 background:"#11151c",
-padding:"20px",
+padding:"14px",
 borderRadius:"12px",
-alignItems:"center",
-flexWrap:"wrap"
-}}>
+alignItems:"center"
+}}
+>
 
 <img
 src={item.image}
 style={{
-width:"100px",
-height:"100px",
+width:"90px",
+height:"90px",
 objectFit:"cover",
 borderRadius:"10px"
 }}
@@ -109,29 +102,28 @@ borderRadius:"10px"
 {item.name}
 </h3>
 
-<p style={{opacity:.7}}>
+<p style={{margin:"4px 0",color:"#aaa"}}>
 Size: {item.size}
 </p>
 
-<p style={{
-fontWeight:"700",
-fontSize:"18px"
-}}>
+<p style={{margin:0,fontWeight:"700"}}>
 ₹{item.price}
 </p>
 
 </div>
 
+{/* ⭐ REMOVE BUTTON */}
 <button
-onClick={()=>removeFromCart(item.id,item.size)}
-
+onClick={()=>removeFromCart(item.id, item.size)}
 style={{
-background:"red",
+background:"#ef4444",
 border:"none",
 color:"white",
-padding:"10px",
+padding:"10px 14px",
 borderRadius:"8px",
-cursor:"pointer"
+cursor:"pointer",
+fontWeight:"600",
+transition:"0.2s"
 }}
 >
 Remove
@@ -148,36 +140,34 @@ Remove
 
 <div style={{
 marginTop:"40px",
-padding:"30px",
-background:"#111",
-borderRadius:"12px"
+borderTop:"1px solid #222",
+paddingTop:"20px"
 }}>
 
 <h2>Total: ₹{total}</h2>
 
 <button
-onClick={handleCheckout}
-
+onClick={()=>{
+alert("✅ Razorpay will open here once connected.");
+clearCart();
+router.push("/");
+}}
 style={{
-width:"100%",
 marginTop:"20px",
-padding:"18px",
-fontSize:"18px",
+width:"100%",
+padding:"16px",
 background:"#22c55e",
 border:"none",
 borderRadius:"12px",
-fontWeight:"700",
+fontWeight:"800",
+fontSize:"18px",
 cursor:"pointer"
 }}
 >
-Place Order
+Proceed To Payment
 </button>
 
 </div>
-
-</>
-
-)}
 
 </div>
 );

@@ -2,21 +2,18 @@
 
 import { createContext, useContext, useState } from "react";
 
-/* ✅ CART ITEM TYPE */
 export type CartItem = {
   id:string;
   name:string;
   price:number;
   image:string;
-  category:string;
   size:string;
 };
 
-/* ✅ CONTEXT TYPE */
 type CartContextType = {
-  cart:CartItem[];
-  addToCart:(product:any, size:string)=>void;
-  removeFromCart:(id:string, size:string)=>void;
+  cart: CartItem[];
+  addToCart:(item:CartItem)=>void;
+  removeFromCart:(id:string,size:string)=>void;
   clearCart:()=>void;
 };
 
@@ -26,37 +23,27 @@ export function CartProvider({children}:{children:React.ReactNode}){
 
 const [cart,setCart] = useState<CartItem[]>([]);
 
-/* ✅ ADD */
-function addToCart(product:any, size:string){
-
-const item:CartItem = {
-id:product.id,
-name:product.name,
-price:product.price,
-image:product.images?.[0] || product.image,
-category:product.category,
-size
-};
-
-setCart(prev => [...prev,item]);
+function addToCart(item:CartItem){
+  setCart(prev => [...prev,item]);
 }
 
-/* ✅ REMOVE */
 function removeFromCart(id:string,size:string){
-
-setCart(prev =>
-prev.filter(item => !(item.id === id && item.size === size))
-);
-
+  setCart(prev => prev.filter(
+    item => !(item.id === id && item.size === size)
+  ));
 }
 
-/* ✅ CLEAR */
 function clearCart(){
-setCart([]);
+  setCart([]);
 }
 
 return(
-<CartContext.Provider value={{cart,addToCart,removeFromCart,clearCart}}>
+<CartContext.Provider value={{
+cart,
+addToCart,
+removeFromCart,
+clearCart
+}}>
 {children}
 </CartContext.Provider>
 );
