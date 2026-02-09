@@ -123,7 +123,7 @@ fontSize:"18px"
 </div>
 
 <button
-onClick={()=>removeFromCart(index)}
+onClick={()=>removeFromCart(item.id,item.size)}
 
 style={{
 background:"red",

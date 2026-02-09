@@ -296,9 +296,8 @@ addToCart(
   name: popupProduct.name,
   price: popupProduct.price,
   image: popupProduct.images?.[0] || popupProduct.image || "",
-  category: popupProduct.category   // ⭐ THIS WAS MISSING
+  size: selectedSize!   // ⭐ THIS WAS MISSING
 },
-selectedSize!
 );
 
 setPopupProduct(null);

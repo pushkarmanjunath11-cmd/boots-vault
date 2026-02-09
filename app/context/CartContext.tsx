@@ -1,75 +1,74 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
-/* ✅ CART TYPE */
+/* ✅ CART ITEM TYPE */
 export type CartItem = {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  size: string;
-  category: string;
+  id:string;
+  name:string;
+  price:number;
+  image:string;
+  category:string;
+  size:string;
 };
 
+/* ✅ CONTEXT TYPE */
 type CartContextType = {
-  cart: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (index: number) => void;
-  clearCart: () => void;
+  cart:CartItem[];
+  addToCart:(product:any, size:string)=>void;
+  removeFromCart:(id:string, size:string)=>void;
+  clearCart:()=>void;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({children}:{children:React.ReactNode}){
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+const [cart,setCart] = useState<CartItem[]>([]);
 
-  /* ✅ LOAD CART FROM LOCAL STORAGE */
-  useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
+/* ✅ ADD */
+function addToCart(product:any, size:string){
 
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
-    }
-  }, []);
+const item:CartItem = {
+id:product.id,
+name:product.name,
+price:product.price,
+image:product.images?.[0] || product.image,
+category:product.category,
+size
+};
 
-  /* ✅ SAVE CART */
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
-  function addToCart(item: CartItem) {
-    setCart(prev => [...prev, item]);
-  }
-
-  function removeFromCart(index: number) {
-    setCart(prev => prev.filter((_, i) => i !== index));
-  }
-
-  function clearCart() {
-    setCart([]);
-  }
-
-  return (
-    <CartContext.Provider value={{
-      cart,
-      addToCart,
-      removeFromCart,
-      clearCart
-    }}>
-      {children}
-    </CartContext.Provider>
-  );
+setCart(prev => [...prev,item]);
 }
 
-export function useCart() {
+/* ✅ REMOVE */
+function removeFromCart(id:string,size:string){
 
-  const context = useContext(CartContext);
+setCart(prev =>
+prev.filter(item => !(item.id === id && item.size === size))
+);
 
-  if (!context) {
-    throw new Error("useCart must be used inside CartProvider");
-  }
+}
 
-  return context;
+/* ✅ CLEAR */
+function clearCart(){
+setCart([]);
+}
+
+return(
+<CartContext.Provider value={{cart,addToCart,removeFromCart,clearCart}}>
+{children}
+</CartContext.Provider>
+);
+}
+
+export function useCart(){
+
+const context = useContext(CartContext);
+
+if(!context){
+throw new Error("useCart must be used inside CartProvider");
+}
+
+return context;
 }

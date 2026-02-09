@@ -1,137 +1,139 @@
 'use client';
 
-import { useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
 import { useCart } from "../context/CartContext";
+import Link from "next/link";
 
-export default function CartDrawer({ open, setOpen }: any) {
+export default function CartDrawer({open,setOpen}:any){
 
-  const { cart, removeFromCart } = useCart();
+const {cart,removeFromCart} = useCart();
 
-  const drawerRef = useRef<any>(null);
-  const pathname = usePathname();
+const total = cart.reduce((sum,item)=> sum + item.price,0);
 
-  /* CLOSE WHEN ROUTE CHANGES */
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+return(
 
-  /* CLOSE WHEN CLICK OUTSIDE */
-  useEffect(() => {
+<>
+{/* BACKDROP */}
+{open && (
+<div
+onClick={()=>setOpen(false)}
+style={{
+position:"fixed",
+top:0,
+left:0,
+width:"100vw",
+height:"100vh",
+background:"rgba(0,0,0,0.6)",
+zIndex:9998
+}}
+/>
+)}
 
-    function handleClick(e: any) {
-      if (drawerRef.current && !drawerRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    }
+<div style={{
+position:"fixed",
+top:0,
+right: open ? "0px":"-420px",
+width:"420px",
+maxWidth:"100%",
+height:"100vh",
+background:"#0b0d11",
+boxShadow:"-10px 0 40px rgba(0,0,0,.6)",
+transition:"0.35s",
+zIndex:9999,
+padding:"20px",
+display:"flex",
+flexDirection:"column"
+}}>
 
-    document.addEventListener("mousedown", handleClick);
+{/* HEADER */}
+<div style={{
+display:"flex",
+justifyContent:"space-between",
+alignItems:"center"
+}}>
+<h2>Your Cart</h2>
 
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-    };
+<button
+onClick={()=>setOpen(false)}
+style={{
+background:"transparent",
+border:"none",
+color:"white",
+fontSize:"22px",
+cursor:"pointer"
+}}>
+✕
+</button>
+</div>
 
-  }, []);
 
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+{/* ITEMS */}
+<div style={{flex:1,overflowY:"auto",marginTop:"20px"}}>
 
-  return (
+{cart.length === 0 && <p>Your cart is empty</p>}
 
-    <div
-      ref={drawerRef}
-      style={{
-        position: "fixed",
-        top: 0,
-        right: open ? "0px" : "-420px",
-        width: "420px",
-        maxWidth: "100%",
-        height: "100vh",
-        background: "#0b0d11",
-        transition: "0.3s",
-        padding: "20px",
-        zIndex: 9999,
-        display: "flex",
-        flexDirection: "column"
-      }}
-    >
+{cart.map(item=>(
 
-      <h2 style={{ color: "white" }}>Your Cart</h2>
+<div key={item.id+item.size} style={{
+display:"flex",
+gap:"10px",
+marginBottom:"18px"
+}}>
 
-      <div style={{ flex: 1, overflowY: "auto" }}>
+<img
+src={item.image}
+style={{
+width:"70px",
+height:"70px",
+objectFit:"cover",
+borderRadius:"8px"
+}}
+/>
 
-        {cart.length === 0 && (
-          <p style={{ color: "#aaa" }}>Your cart is empty</p>
-        )}
+<div style={{flex:1}}>
+<p>{item.name}</p>
+<p>Size: {item.size}</p>
+<p>₹{item.price}</p>
+</div>
 
-        {cart.map((item, index) => (
+<button
+onClick={()=>removeFromCart(item.id,item.size)}
+style={{
+background:"red",
+border:"none",
+color:"white",
+padding:"6px 10px",
+borderRadius:"6px",
+cursor:"pointer"
+}}>
+X
+</button>
 
-          <div key={index} style={{
-            display: "flex",
-            gap: "10px",
-            marginBottom: "15px"
-          }}>
+</div>
 
-            <img
-              src={item.image}
-              style={{
-                width: "60px",
-                height: "60px",
-                objectFit: "cover",
-                borderRadius: "8px"
-              }}
-            />
+))}
 
-            <div style={{ flex: 1 }}>
-              <p style={{ color: "white", margin: 0 }}>
-                {item.name}
-              </p>
+</div>
 
-              <p style={{ color: "#9ca3af", margin: 0 }}>
-                Size: {item.size}
-              </p>
 
-              <p style={{ color: "#9ca3af", margin: 0 }}>
-                ₹{item.price}
-              </p>
-            </div>
+{/* FOOTER */}
 
-            <button
-              onClick={() => removeFromCart(index)}
-              style={{
-                background: "red",
-                border: "none",
-                color: "white",
-                borderRadius: "6px",
-                padding: "6px"
-              }}
-            >
-              X
-            </button>
+{cart.length > 0 && (
+<Link href="/checkout">
+<button style={{
+width:"100%",
+padding:"16px",
+background:"#22c55e",
+border:"none",
+borderRadius:"10px",
+fontWeight:"700",
+cursor:"pointer"
+}}>
+Checkout • ₹{total}
+</button>
+</Link>
+)}
 
-          </div>
-
-        ))}
-
-      </div>
-
-      <h3 style={{ color: "white" }}>
-        Total: ₹{total}
-      </h3>
-
-      <a href="/checkout">
-        <button style={{
-          width: "100%",
-          padding: "14px",
-          background: "#22c55e",
-          border: "none",
-          borderRadius: "10px",
-          fontWeight: "700",
-          cursor: "pointer"
-        }}>
-          Checkout
-        </button>
-      </a>
-
-    </div>
-  );
+</div>
+</>
+);
 }
