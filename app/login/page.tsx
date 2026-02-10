@@ -1,17 +1,17 @@
 'use client';
 
-import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function LoginPage(){
 
-async function loginGoogle(){
+async function handleLogin(){
 
 const provider = new GoogleAuthProvider();
 
 await signInWithPopup(auth, provider);
 
-alert("Logged in successfully!");
+window.location.href = "/";
 
 }
 
@@ -22,27 +22,26 @@ height:"100vh",
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
-background:"#020617",
-color:"white"
+background:"#020617"
 }}>
 
 <div style={{
-background:"#0f172a",
+background:"#07122a",
 padding:"50px",
 borderRadius:"16px",
 width:"380px",
 textAlign:"center",
-boxShadow:"0 20px 60px rgba(0,0,0,.6)"
+border:"1px solid rgba(34,197,94,.2)"
 }}>
 
-<h1>Boots Vault</h1>
+<h1 style={{color:"white"}}>Boots Vault</h1>
 
-<p style={{opacity:.7}}>
-Login to track orders & checkout faster
+<p style={{color:"#9ca3af"}}>
+Login in 1 second with Google
 </p>
 
 <button
-onClick={loginGoogle}
+onClick={handleLogin}
 style={{
 marginTop:"20px",
 width:"100%",
@@ -58,7 +57,7 @@ Continue with Google
 </button>
 
 </div>
-</div>
 
+</div>
 );
 }

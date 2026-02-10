@@ -1,133 +1,106 @@
 'use client';
 
 import { useCart } from "@/app/context/CartContext";
+import { db, auth } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function CheckoutPage(){
+export default function Checkout(){
 
-const { cart, removeFromCart, clearCart } = useCart();
+const {cart,removeFromCart,clearCart} = useCart();
 
-/* ---------- TOTAL ---------- */
+const total = cart.reduce((sum,item)=>sum+item.price,0);
 
-const total = cart.reduce((sum,item)=> sum + item.price,0);
+const router = useRouter();
+const [user,setUser] = useState<any>(null);
 
-/* ---------- WHATSAPP MESSAGE ---------- */
+useEffect(()=>{
 
-function handleWhatsApp(){
+const unsub = onAuthStateChanged(auth,(u)=>{
 
-if(cart.length === 0) return;
-
-let message = `🛒 *New Order — Boots Vault* %0A%0A`;
-
-cart.forEach((item,index)=>{
-
-message += `*${index+1}. ${item.name}* %0A`;
-message += `Size: ${item.size} %0A`;
-message += `Price: ₹${item.price} %0A`;
-message += `Image: ${item.image} %0A%0A`;
+if(!u){
+router.push("/login");
+}else{
+setUser(u);
+}
 
 });
 
-message += `💰 *Total: ₹${total}*`;
+return ()=>unsub();
 
-const phone = "917996097779"; // ← PUT YOUR NUMBER
-const url = `https://wa.me/${phone}?text=${message}`;
+},[]);
 
-window.open(url,"_blank");
+async function placeOrder(){
 
-clearCart(); // empties cart after clicking checkout
+const user = auth.currentUser;
+
+if(!user){
+router.push("/login");
+return;
 }
 
-/* ---------- UI ---------- */
+await addDoc(collection(db,"orders"),{
+
+invoice:"INV-"+Date.now(),
+userId:user.uid,
+email:user.email,
+
+items:cart,
+total,
+
+status:"Processing",
+
+createdAt:new Date()
+
+});
+
+clearCart();
+
+alert("✅ Order Placed!");
+router.push("/track");
+
+}
 
 return(
 
 <div style={{
-minHeight:"100vh",
+padding:"40px",
 background:"#020617",
-padding:"40px 20px",
+minHeight:"100vh",
 color:"white"
 }}>
 
-<h1 style={{
-fontSize:"32px",
-marginBottom:"30px"
-}}>
-Checkout
-</h1>
-
-
-{/* EMPTY CART */}
-
-{cart.length === 0 && (
-<h2 style={{opacity:.6}}>
-Your cart is empty
-</h2>
-)}
-
-
-{/* ITEMS */}
-
-<div style={{
-display:"flex",
-flexDirection:"column",
-gap:"18px",
-maxWidth:"700px"
-}}>
+<h1>Checkout</h1>
 
 {cart.map(item=>(
 
-<div
-key={`${item.id}-${item.size}`}
+<div key={item.id+item.size}
 style={{
 display:"flex",
-gap:"16px",
-alignItems:"center",
-background:"linear-gradient(145deg,#0f172a,#020617)",
-padding:"16px",
-borderRadius:"14px",
-border:"1px solid rgba(34,197,94,.15)"
-}}
->
+gap:"20px",
+marginBottom:"20px",
+background:"#07122a",
+padding:"15px",
+borderRadius:"12px"
+}}>
 
-<img
-src={item.image}
-style={{
-width:"90px",
-height:"90px",
-objectFit:"cover",
-borderRadius:"10px"
-}}
-/>
+<img src={item.image} width={80}/>
 
 <div style={{flex:1}}>
-
-<h3 style={{margin:0}}>
-{item.name}
-</h3>
-
-<p style={{opacity:.7}}>
-Size: {item.size}
-</p>
-
-<p style={{
-color:"#22c55e",
-fontWeight:"700"
-}}>
-₹{item.price}
-</p>
-
+<p>{item.name}</p>
+<p>Size: {item.size}</p>
+<p>₹{item.price}</p>
 </div>
 
 <button
 onClick={()=>removeFromCart(item.id,item.size)}
 style={{
-background:"#ef4444",
+background:"red",
 border:"none",
 color:"white",
-padding:"10px 14px",
-borderRadius:"8px",
-cursor:"pointer",
-fontWeight:"700"
+padding:"8px"
 }}
 >
 Remove
@@ -137,43 +110,21 @@ Remove
 
 ))}
 
-</div>
-
-
-{/* TOTAL */}
-
-{cart.length > 0 && (
-
-<div style={{
-marginTop:"40px",
-maxWidth:"700px"
-}}>
-
-<h2>
-Total: ₹{total}
-</h2>
+<h2>Total: ₹{total}</h2>
 
 <button
-onClick={handleWhatsApp}
+onClick={placeOrder}
 style={{
-marginTop:"16px",
-width:"100%",
-padding:"18px",
-borderRadius:"14px",
+padding:"16px",
+background:"#22c55e",
 border:"none",
-fontSize:"18px",
+borderRadius:"10px",
 fontWeight:"800",
-cursor:"pointer",
-background:"linear-gradient(90deg,#22c55e,#4ade80)",
-color:"#022c22"
+cursor:"pointer"
 }}
 >
-Checkout on WhatsApp
+Place Order
 </button>
-
-</div>
-
-)}
 
 </div>
 );

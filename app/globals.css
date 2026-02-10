@@ -39,3 +39,11 @@ gap:24px;
 grid-template-columns:repeat(2,1fr);
 }
 }
+
+body{
+background:#020617;
+}
+
+*{
+font-family: 'Inter', sans-serif;
+}

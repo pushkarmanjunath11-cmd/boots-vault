@@ -6,8 +6,6 @@ import { collection, addDoc } from "firebase/firestore";
 
 export default function AdminPage(){
 
-/* ---------------- SIZE MAP ---------------- */
-
 const sizeMap:any = {
 boots:["6","6.5","7","7.5","8","8.5","9","9.5","10","10.5","11"],
 jerseys:["S","M","L","XL"],
@@ -17,17 +15,12 @@ balls:["3","4","5"],
 gear:["Standard"]
 };
 
-/* ---------------- STATE ---------------- */
-
 const [name,setName] = useState("");
 const [price,setPrice] = useState("");
 const [category,setCategory] = useState("boots");
 const [featured,setFeatured] = useState(false);
 const [sizes,setSizes] = useState<Record<string,number>>({});
 const [images,setImages] = useState<string[]>([""]);
-
-
-/* ---------------- AUTO SIZE RESET ---------------- */
 
 useEffect(()=>{
 
@@ -42,9 +35,6 @@ setSizes(emptyStock);
 },[category]);
 
 
-
-/* ---------------- ADD PRODUCT ---------------- */
-
 async function addProduct(){
 
 const cleanImages = images.filter(img => img.trim() !== "");
@@ -54,16 +44,12 @@ alert("Fill all fields!");
 return;
 }
 
-/* format sizes safely */
-
 const formattedSizes = Object.fromEntries(
 Object.entries(sizes).map(([size,qty])=>[
 size,
 Number(qty) || 0
 ])
 );
-
-/* stop zero stock */
 
 if(Object.values(formattedSizes).every(qty => qty <= 0)){
 alert("Add stock before creating product");
@@ -82,71 +68,63 @@ createdAt:new Date()
 
 alert("✅ Product Added!");
 
-/* -------- RESET FORM -------- */
-
 setName("");
 setPrice("");
 setFeatured(false);
-setCategory("boots"); 
-setImages([""]);   // resets image inputs
-
-// sizes auto reset via useEffect
+setCategory("boots");
+setImages([""]);
 }
-
-
-/* ---------------- UI ---------------- */
 
 return(
 
 <div style={{
-padding:"40px",
-color:"white",
-minHeight:"100vh"
+maxWidth:"750px",
+margin:"auto",
+background:"#07122a",
+padding:"45px",
+borderRadius:"22px",
+boxShadow:"0 40px 120px rgba(0,0,0,.8)",
+border:"1px solid rgba(34,197,94,.15)"
 }}>
 
-<h1>OWNER DASHBOARD</h1>
+<h1 style={{
+fontWeight:"900",
+marginBottom:"25px"
+}}>
+Add New Product
+</h1>
 
 <div style={{
 display:"flex",
 flexDirection:"column",
-gap:"12px",
-maxWidth:"420px"
+gap:"16px"
 }}>
 
-<input
-placeholder="Product Name"
+<input placeholder="Product Name"
 value={name}
 onChange={(e)=>setName(e.target.value)}
+style={input}
 />
 
 <select
 value={category}
 onChange={(e)=>setCategory(e.target.value)}
-style={{
-background:"#111",
-color:"#fff",
-padding:"10px",
-borderRadius:"8px"
-}}
+style={input}
 >
-
 <option value="boots">Boots</option>
 <option value="jerseys">Jerseys</option>
 <option value="gloves">Gloves</option>
 <option value="jackets">Jackets</option>
 <option value="balls">Balls</option>
 <option value="gear">Gear</option>
-
 </select>
 
 <input
 placeholder="Price"
 value={price}
 onChange={(e)=>setPrice(e.target.value)}
+style={input}
 />
-
-
-{/* ---------- IMAGES ---------- */}
 
 <h3>Product Images</h3>
 
@@ -161,22 +139,19 @@ const updated = [...images];
 updated[index] = e.target.value;
 setImages(updated);
 }}
+style={input}
 />
 
 ))}
 
 <button
 onClick={()=>setImages([...images,""])}
-style={{padding:"6px"}}
+style={secondaryBtn}
 >
 + Add Another Image
 </button>
 
-
-
-{/* ---------- FEATURED ---------- */}
-
-<label>
+<label style={{marginTop:"10px"}}>
 <input
 type="checkbox"
 checked={featured}
@@ -184,10 +159,6 @@ onChange={(e)=>setFeatured(e.target.checked)}
 />
  Featured Product
 </label>
-
-
-
-{/* ---------- STOCK ---------- */}
 
 <h3>Stock</h3>
 
@@ -203,27 +174,46 @@ setSizes({
 [size]:Number(e.target.value)
 })
 }
+style={input}
 />
 
 ))}
 
-
-
 <button
 onClick={addProduct}
-style={{
-padding:"12px",
-background:"#22c55e",
-border:"none",
-borderRadius:"10px",
-fontWeight:"700",
-cursor:"pointer"
-}}
+style={primaryBtn}
 >
 Add Product
 </button>
 
 </div>
+
 </div>
 );
 }
+
+const input = {
+padding:"14px",
+borderRadius:"10px",
+border:"1px solid rgba(255,255,255,.08)",
+background:"#020617",
+color:"white"
+};
+
+const primaryBtn = {
+padding:"16px",
+background:"#22c55e",
+border:"none",
+borderRadius:"14px",
+fontWeight:"800",
+fontSize:"16px",
+cursor:"pointer"
+};
+
+const secondaryBtn = {
+padding:"10px",
+background:"#111",
+border:"1px solid rgba(255,255,255,.1)",
+borderRadius:"10px",
+cursor:"pointer"
+};
