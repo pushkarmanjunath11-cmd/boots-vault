@@ -48,6 +48,15 @@ export default function Footer() {
           <div>WhatsApp: +91 7996097779</div>
         </div>
 
+        <div style={{
+          marginTop: "10px",
+          fontSize: "13px",
+          opacity: 0.7
+        }}>
+          <div>No returns on used products.</div>
+          <div>Size exchanges available within 3 days.</div>
+        </div>
+
         {/* DIVIDER */}
         <div style={{
           width: "100%",
@@ -63,6 +72,8 @@ export default function Footer() {
           opacity: 0.6
         }}>
           © {new Date().getFullYear()} Boots Vault. All rights reserved.
+          © {new Date().getFullYear()} No returns on used products.
+          © {new Date().getFullYear()} Replacement available within 3 days.
         </p>
 
       </div>

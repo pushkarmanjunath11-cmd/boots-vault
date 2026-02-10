@@ -26,13 +26,15 @@ display:"flex",
 justifyContent:"space-between",
 alignItems:"center",
 padding:"18px 40px",
-background:"#000",
+background:"#0B0F14",
 color:"#fff",
 position:"sticky",
 top:0,
 zIndex:999,
-borderBottom:"1px solid #111"
+borderBottom:"1px solid #1F2937"
 }}>
+
+ <Link href="/login">Login</Link>
 
 {/* LOGO → GO HOME */}
 <Link href="/" style={{

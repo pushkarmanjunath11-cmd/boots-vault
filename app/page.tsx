@@ -42,12 +42,10 @@ fetchProducts();
 /* STOCK CHECK */
 
 function isOut(product:Product){
-
 if(!product.sizes) return true;
 
 return Object.values(product.sizes)
 .every((qty:number)=> qty <= 0);
-
 }
 
 
@@ -64,37 +62,66 @@ return product.category === selectedCategory;
 });
 
 
-/* UI */
-
 return(
 
 <div style={{
-padding:"20px",
-background:"#0b0d11",
+padding:"30px",
+background:"#020617",
 minHeight:"100vh"
 }}>
 
 {/* HERO */}
 
 <div style={{
-padding:"40px 20px",
-borderRadius:"14px",
-background:"linear-gradient(135deg,#111,#1a1f2b)",
+padding:"60px 40px",
+borderRadius:"24px",
+background:"linear-gradient(135deg,#020617,#07131f)",
 color:"white",
-marginBottom:"30px"
+marginBottom:"50px",
+border:"1px solid rgba(34,197,94,.15)",
+boxShadow:"0 40px 120px rgba(0,0,0,.6)"
 }}>
 
 <h1 style={{
-fontSize:"clamp(28px,5vw,52px)",
-margin:0
+fontSize:"clamp(34px,6vw,64px)",
+margin:0,
+fontWeight:"800",
+letterSpacing:"-1px"
 }}>
-Dominate The Pitch
+Dominate The Pitch ⚽
 </h1>
 
-<p style={{opacity:0.7}}>
-Elite Football Boots Built For Speed ⚡
+<p style={{
+opacity:.7,
+fontSize:"18px",
+marginTop:"10px"
+}}>
+Elite Football Boots Built For Speed
 </p>
 
+</div>
+
+
+{/* TRUST BAR */}
+
+<div style={{
+display:"flex",
+justifyContent:"center",
+gap:"40px",
+flexWrap:"wrap",
+marginBottom:"60px",
+padding:"18px",
+background:"linear-gradient(90deg,#020617,#07131f)",
+borderRadius:"14px",
+fontSize:"14px",
+fontWeight:"600",
+border:"1px solid rgba(34,197,94,.15)"
+}}>
+<span>✅ UPI Accepted</span>
+<span>💬 Order on WhatsApp</span>
+<span>🚚 Ships Across India</span>
+<span>🔒 Secure Ordering</span>
+<span>💳 UPI • GPay • PhonePe</span>
 </div>
 
 
@@ -102,9 +129,10 @@ Elite Football Boots Built For Speed ⚡
 
 <div style={{
 display:"flex",
-gap:"10px",
+gap:"12px",
 flexWrap:"wrap",
-marginBottom:"25px"
+marginBottom:"70px",
+justifyContent:"center"
 }}>
 
 {["all","boots","jerseys","gloves","jackets","balls","gear"].map(cat=>(
@@ -113,12 +141,14 @@ marginBottom:"25px"
 key={cat}
 onClick={()=>setSelectedCategory(cat)}
 style={{
-padding:"8px 16px",
+padding:"10px 20px",
 borderRadius:"999px",
-border:"1px solid #222",
-background:selectedCategory===cat ? "#fff" : "transparent",
-color:selectedCategory===cat ? "#000" : "#aaa",
-cursor:"pointer"
+border:"1px solid rgba(255,255,255,.08)",
+background:selectedCategory===cat ? "#22c55e" : "transparent",
+color:selectedCategory===cat ? "#02120a" : "#aaa",
+cursor:"pointer",
+fontWeight:"700",
+transition:"0.25s"
 }}
 >
 {cat.toUpperCase()}
@@ -129,13 +159,10 @@ cursor:"pointer"
 </div>
 
 
+
 {/* GRID */}
 
-<div style={{
-display:"grid",
-gridTemplateColumns:"repeat(auto-fit, minmax(220px,1fr))",
-gap:"18px"
-}}>
+<div className="productGrid">
 
 {filtered.map(product=>{
 
@@ -143,11 +170,28 @@ const out = isOut(product);
 
 return(
 
-<div key={product.id} style={{
-background:"#11151c",
-padding:"14px",
-borderRadius:"12px"
-}}>
+<div key={product.id}
+
+style={{
+background:"linear-gradient(145deg,#020617,#07131f)",
+padding:"22px",
+borderRadius:"20px",
+cursor:"pointer",
+border:"1px solid rgba(34,197,94,0.18)",
+transition:"0.35s",
+boxShadow:"0 20px 50px rgba(0,0,0,.7)"
+}}
+
+onMouseEnter={(e)=>{
+e.currentTarget.style.transform="translateY(-10px)";
+e.currentTarget.style.boxShadow="0 45px 90px rgba(34,197,94,.15)";
+}}
+
+onMouseLeave={(e)=>{
+e.currentTarget.style.transform="translateY(0px)";
+e.currentTarget.style.boxShadow="0 20px 50px rgba(0,0,0,.7)";
+}}
+>
 
 <Link href={`/product/${product.id}`}>
 
@@ -155,19 +199,26 @@ borderRadius:"12px"
 src={product.images?.[0] || product.image}
 style={{
 width:"100%",
-height:"180px",
-objectFit:"contain",
-cursor:"pointer"
+height:"200px",
+objectFit:"contain"
 }}
 />
 
 </Link>
 
-<h3 style={{color:"#fff"}}>
+<h3 style={{
+color:"#fff",
+marginTop:"14px",
+fontSize:"18px"
+}}>
 {product.name}
 </h3>
 
-<p style={{color:"#9ca3af"}}>
+<p style={{
+color:"#22c55e",
+fontWeight:"700",
+fontSize:"18px"
+}}>
 ₹{product.price}
 </p>
 
@@ -178,14 +229,15 @@ setPopupProduct(product);
 setSelectedSize(null);
 }}
 style={{
-marginTop:"6px",
+marginTop:"10px",
 width:"100%",
-padding:"10px",
-borderRadius:"8px",
+padding:"12px",
+borderRadius:"10px",
 border:"none",
-background: out ? "#333" : "#22c55e",
-color:"white",
-cursor:"pointer"
+background: out ? "#111" : "#22c55e",
+color: out ? "#555" : "#02120a",
+fontWeight:"800",
+cursor: out ? "not-allowed" : "pointer"
 }}
 >
 
@@ -202,37 +254,44 @@ cursor:"pointer"
 </div>
 
 
+
 {/* SIZE POPUP */}
 
 {popupProduct && (
 
-<div style={{
+<div
+onClick={()=>setPopupProduct(null)}
+style={{
 position:"fixed",
 top:0,
 left:0,
 width:"100%",
 height:"100%",
-background:"rgba(0,0,0,.75)",
+background:"rgba(0,0,0,.85)",
 display:"flex",
 justifyContent:"center",
 alignItems:"center",
 zIndex:9999
 }}>
 
-<div style={{
-background:"#0f172a",
-padding:"30px",
-borderRadius:"16px",
-width:"420px",
-maxWidth:"95%"
+<div
+onClick={(e)=>e.stopPropagation()}
+style={{
+background:"#020617",
+padding:"35px",
+borderRadius:"20px",
+width:"480px",
+maxWidth:"95%",
+boxShadow:"0 60px 140px rgba(0,0,0,.9)",
+border:"1px solid rgba(34,197,94,.15)"
 }}>
 
 <img
 src={popupProduct.images?.[0] || popupProduct.image}
 style={{
 width:"100%",
-borderRadius:"10px",
-marginBottom:"10px"
+borderRadius:"14px",
+marginBottom:"12px"
 }}
 />
 
@@ -240,7 +299,11 @@ marginBottom:"10px"
 {popupProduct.name}
 </h2>
 
-<p style={{color:"#22c55e"}}>
+<p style={{
+color:"#22c55e",
+fontSize:"20px",
+fontWeight:"700"
+}}>
 ₹{popupProduct.price}
 </p>
 
@@ -264,14 +327,14 @@ key={size}
 disabled={out}
 onClick={()=>setSelectedSize(size)}
 style={{
-padding:"10px 14px",
-borderRadius:"8px",
+padding:"12px 16px",
+borderRadius:"10px",
 border:selectedSize===size
 ? "2px solid #22c55e"
 : "1px solid #333",
-background:"#111",
+background:"#07131f",
 color:"white",
-cursor:"pointer"
+cursor: out ? "not-allowed":"pointer"
 }}
 >
 
@@ -290,48 +353,30 @@ cursor:"pointer"
 disabled={!selectedSize}
 onClick={()=>{
 
-addToCart(
-{
-  id: popupProduct.id,
-  name: popupProduct.name,
-  price: popupProduct.price,
-  image: popupProduct.images?.[0] || popupProduct.image || "",
-  size: selectedSize!   // ⭐ THIS WAS MISSING
-},
-);
+addToCart({
+id: popupProduct.id,
+name: popupProduct.name,
+price: popupProduct.price,
+image: popupProduct.images?.[0] || popupProduct.image || "",
+size: selectedSize!
+});
 
 setPopupProduct(null);
 
 }}
 style={{
 width:"100%",
-padding:"14px",
-background:selectedSize ? "#22c55e":"#333",
+padding:"16px",
+background:selectedSize ? "#22c55e":"#111",
 border:"none",
-borderRadius:"10px",
-fontWeight:"700",
-cursor:"pointer"
+borderRadius:"12px",
+fontWeight:"800",
+cursor:selectedSize ? "pointer":"not-allowed"
 }}
 >
 
 Add To Cart
 
-</button>
-
-
-<button
-onClick={()=>setPopupProduct(null)}
-style={{
-marginTop:"10px",
-width:"100%",
-padding:"10px",
-background:"transparent",
-border:"1px solid #444",
-color:"white",
-borderRadius:"10px"
-}}
->
-Cancel
 </button>
 
 </div>

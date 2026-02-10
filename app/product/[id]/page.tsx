@@ -1,148 +1,316 @@
 'use client';
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { Product } from "@/types/Product";
+import { collection, getDocs } from "firebase/firestore";
 import { useCart } from "@/app/context/CartContext";
+import { Product } from "@/types/Product";
 
-export default function ProductPage(){
+export default function Home(){
 
-const params = useParams();
-const id = params?.id as string;
+const [products,setProducts] = useState<Product[]>([]);
+const [selectedCategory,setSelectedCategory] = useState("all");
 
-const { addToCart } = useCart();
+const {addToCart} = useCart();
 
-const [product,setProduct] = useState<Product | null>(null);
-const [selectedImage,setSelectedImage] = useState("");
+const [popupProduct,setPopupProduct] = useState<Product | null>(null);
 const [selectedSize,setSelectedSize] = useState<string | null>(null);
 
 
-/* ---------------- FETCH PRODUCT ---------------- */
+/* FETCH */
 
 useEffect(()=>{
 
-if(!id) return;
+async function fetchProducts(){
 
-async function fetchProduct(){
+const snapshot = await getDocs(collection(db,"products"));
 
-const ref = doc(db,"products",id);
-const snap = await getDoc(ref);
+const list = snapshot.docs.map(doc=>({
+id:doc.id,
+...doc.data()
+})) as Product[];
 
-if(snap.exists()){
+setProducts(list);
+}
 
-const data = {
-id: snap.id,
-...snap.data()
-} as Product;
+fetchProducts();
 
-setProduct(data);
-setSelectedImage(data.images?.[0] || data.image || "");
+},[]);
+
+
+/* STOCK */
+
+function isOut(product:Product){
+
+if(!product.sizes) return true;
+
+return Object.values(product.sizes)
+.every((qty:number)=> qty <= 0);
 
 }
 
+
+/* FILTER */
+
+const filtered = products.filter(product=>{
+
+if(selectedCategory === "all"){
+return product.featured === true;
 }
 
-fetchProduct();
+return product.category === selectedCategory;
 
-},[id]);
+});
 
-
-/* ---------------- LOADING ---------------- */
-
-if(!product){
-return <h1 style={{padding:"40px"}}>Loading...</h1>;
-}
-
-
-/* ---------------- UI ---------------- */
 
 return(
 
 <div style={{
 padding:"40px",
-color:"white",
-display:"grid",
-gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))",
-gap:"40px"
+background:"linear-gradient(180deg,#020617,#020617,#000)",
+minHeight:"100vh"
 }}>
 
-{/* IMAGE SECTION */}
 
-<div>
+{/* HERO */}
 
-<img
-src={selectedImage}
-style={{
-width:"100%",
-borderRadius:"16px",
-background:"#111",
-padding:"20px",
-objectFit:"contain"
-}}
-/>
+<div style={{
+padding:"70px 40px",
+borderRadius:"20px",
+background:"linear-gradient(135deg,#020617,#07122a)",
+color:"white",
+marginBottom:"40px",
+border:"1px solid rgba(34,197,94,.15)"
+}}>
+
+<h1 style={{
+fontSize:"clamp(36px,6vw,64px)",
+margin:0,
+fontWeight:"800",
+letterSpacing:"-1px"
+}}>
+Dominate The Pitch ⚡
+</h1>
+
+<p style={{
+opacity:.7,
+marginTop:"10px",
+fontSize:"18px"
+}}>
+India’s Premium Football Store
+</p>
+
+</div>
 
 
-{/* THUMBNAILS */}
+{/* TRUST BAR */}
 
 <div style={{
 display:"flex",
-gap:"10px",
-marginTop:"12px",
-flexWrap:"wrap"
+justifyContent:"center",
+gap:"40px",
+flexWrap:"wrap",
+marginBottom:"50px",
+padding:"18px",
+background:"rgba(15,23,42,.6)",
+backdropFilter:"blur(12px)",
+borderRadius:"14px",
+fontWeight:"600",
+border:"1px solid rgba(34,197,94,.12)"
 }}>
 
-{(product.images?.length ? product.images : [product.image]).map((img:any)=>(
-<img
-key={img}
-src={img}
-onClick={()=>setSelectedImage(img)}
+<span>✅ UPI Accepted</span>
+<span>💬 WhatsApp Orders</span>
+<span>🚚 Ships Across India</span>
+<span>🔒 Secure Ordering</span>
+
+</div>
+
+
+
+{/* CATEGORY */}
+
+<div style={{
+display:"flex",
+gap:"14px",
+flexWrap:"wrap",
+marginBottom:"60px"
+}}>
+
+{["all","boots","jerseys","gloves","jackets","balls","gear"].map(cat=>(
+
+<button
+key={cat}
+onClick={()=>setSelectedCategory(cat)}
 style={{
-width:"70px",
-height:"70px",
-objectFit:"cover",
-borderRadius:"8px",
+padding:"10px 22px",
+borderRadius:"999px",
+border:"1px solid rgba(34,197,94,.25)",
+background:selectedCategory===cat
+? "#22c55e"
+: "transparent",
+color:selectedCategory===cat
+? "#000"
+: "#9ca3af",
 cursor:"pointer",
-border:selectedImage===img
-? "2px solid #22c55e"
-: "1px solid #333"
+fontWeight:"700"
 }}
-/>
+>
+{cat.toUpperCase()}
+</button>
+
 ))}
 
 </div>
 
+
+
+{/* GRID */}
+
+<div
+style={{
+display:"grid",
+gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",
+gap:"28px"
+}}
+>
+
+{filtered.map(product=>{
+
+const out = isOut(product);
+
+return(
+
+<div key={product.id}
+
+style={{
+background:"linear-gradient(145deg,#020617,#020617,#07122a)",
+padding:"20px",
+borderRadius:"18px",
+border:"1px solid rgba(34,197,94,.15)",
+transition:"0.3s",
+boxShadow:"0 10px 40px rgba(0,0,0,.6)"
+}}
+
+onMouseEnter={(e)=>{
+e.currentTarget.style.transform="translateY(-8px)";
+}}
+
+onMouseLeave={(e)=>{
+e.currentTarget.style.transform="translateY(0px)";
+}}
+
+>
+
+<Link href={`/product/${product.id}`}>
+
+<img
+src={product.images?.[0] || product.image}
+style={{
+width:"100%",
+height:"190px",
+objectFit:"contain"
+}}
+/>
+
+</Link>
+
+<h3 style={{color:"#fff"}}>
+{product.name}
+</h3>
+
+<p style={{color:"#22c55e",fontWeight:"700"}}>
+₹{product.price}
+</p>
+
+<button
+disabled={out}
+onClick={()=>{
+setPopupProduct(product);
+setSelectedSize(null);
+}}
+style={{
+marginTop:"10px",
+width:"100%",
+padding:"12px",
+borderRadius:"10px",
+border:"none",
+background: out ? "#111" : "#22c55e",
+color: out ? "#555" : "#000",
+fontWeight:"700",
+cursor:"pointer"
+}}
+>
+
+{out ? "Out of Stock":"Add To Cart"}
+
+</button>
+
+</div>
+
+);
+
+})}
+
 </div>
 
 
 
-{/* INFO SECTION */}
+{/* POPUP */}
 
-<div>
+{popupProduct && (
 
-<h1 style={{marginTop:0}}>
-{product.name}
-</h1>
+<div style={{
+position:"fixed",
+top:0,
+left:0,
+width:"100%",
+height:"100%",
+background:"rgba(0,0,0,.8)",
+display:"flex",
+justifyContent:"center",
+alignItems:"center",
+zIndex:9999
+}}>
 
-<h2 style={{color:"#22c55e"}}>
-₹{product.price}
+<div style={{
+background:"#020617",
+padding:"30px",
+borderRadius:"18px",
+width:"420px",
+maxWidth:"95%",
+border:"1px solid rgba(34,197,94,.2)"
+}}>
+
+<img
+src={popupProduct.images?.[0] || popupProduct.image}
+style={{
+width:"100%",
+borderRadius:"10px",
+marginBottom:"12px"
+}}
+/>
+
+<h2 style={{color:"white"}}>
+{popupProduct.name}
 </h2>
 
+<p style={{color:"#22c55e"}}>
+₹{popupProduct.price}
+</p>
 
 
-{/* SIZE SELECTOR */}
-
-<h3>Select Size</h3>
+<h3 style={{color:"white"}}>Select Size</h3>
 
 <div style={{
 display:"flex",
-gap:"10px",
 flexWrap:"wrap",
+gap:"10px",
 marginBottom:"20px"
 }}>
 
-{Object.entries(product.sizes || {}).map(([size,stock]:any)=>{
+{Object.entries(popupProduct.sizes || {}).map(([size,stock]:any)=>{
 
 const out = Number(stock) <= 0;
 
@@ -153,14 +321,14 @@ key={size}
 disabled={out}
 onClick={()=>setSelectedSize(size)}
 style={{
-padding:"12px 16px",
-borderRadius:"10px",
+padding:"10px 14px",
+borderRadius:"8px",
 border:selectedSize===size
 ? "2px solid #22c55e"
 : "1px solid #333",
-background: out ? "#222" : "#111",
+background:"#020617",
 color:"white",
-cursor: out ? "not-allowed":"pointer"
+cursor:"pointer"
 }}
 >
 {size}
@@ -173,33 +341,39 @@ cursor: out ? "not-allowed":"pointer"
 </div>
 
 
-
-{/* ADD TO CART */}
-
 <button
 disabled={!selectedSize}
-onClick={() =>
-  addToCart({
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    image: product.images?.[0] || product.image,
-    selectedSize: selectedSize!
-  })
-}
+onClick={()=>{
+
+addToCart({
+id: popupProduct.id,
+name: popupProduct.name,
+price: popupProduct.price,
+image: popupProduct.images?.[0] || popupProduct.image || "",
+size: selectedSize!
+});
+
+setPopupProduct(null);
+
+}}
 style={{
-padding:"16px",
-background:"#22c55e",
+width:"100%",
+padding:"14px",
+background:selectedSize ? "#22c55e":"#333",
 border:"none",
 borderRadius:"10px",
 fontWeight:"700",
-cursor: selectedSize ? "pointer" : "not-allowed"
+cursor:"pointer"
 }}
 >
-{selectedSize ? "Add To Cart":"Select Size First"}
+Add To Cart
 </button>
 
 </div>
+
+</div>
+
+)}
 
 </div>
 );

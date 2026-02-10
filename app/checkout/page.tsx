@@ -1,53 +1,40 @@
 'use client';
 
-import { useCart } from "../context/CartContext";
-import { useRouter } from "next/navigation";
+import { useCart } from "@/app/context/CartContext";
 
 export default function CheckoutPage(){
 
-const { cart, clearCart, removeFromCart } = useCart();
-const router = useRouter();
+const { cart, removeFromCart, clearCart } = useCart();
 
 /* ---------- TOTAL ---------- */
 
 const total = cart.reduce((sum,item)=> sum + item.price,0);
 
-/* ---------- EMPTY CART ---------- */
+/* ---------- WHATSAPP MESSAGE ---------- */
 
-if(cart.length === 0){
-return(
+function handleWhatsApp(){
 
-<div style={{
-minHeight:"100vh",
-display:"flex",
-justifyContent:"center",
-alignItems:"center",
-background:"#0b0d11",
-color:"white"
-}}>
+if(cart.length === 0) return;
 
-<div style={{textAlign:"center"}}>
+let message = `🛒 *New Order — Boots Vault* %0A%0A`;
 
-<h1>Your cart is empty</h1>
+cart.forEach((item,index)=>{
 
-<button
-onClick={()=>router.push("/")}
-style={{
-marginTop:"20px",
-padding:"12px 20px",
-background:"#22c55e",
-border:"none",
-borderRadius:"8px",
-fontWeight:"700",
-cursor:"pointer"
-}}
->
-Continue Shopping
-</button>
+message += `*${index+1}. ${item.name}* %0A`;
+message += `Size: ${item.size} %0A`;
+message += `Price: ₹${item.price} %0A`;
+message += `Image: ${item.image} %0A%0A`;
 
-</div>
-</div>
-);
+});
+
+message += `💰 *Total: ₹${total}*`;
+
+const phone = "917996097779"; // ← PUT YOUR NUMBER
+const url = `https://wa.me/${phone}?text=${message}`;
+
+window.open(url,"_blank");
+
+clearCart(); // empties cart after clicking checkout
 }
 
 /* ---------- UI ---------- */
@@ -55,13 +42,27 @@ Continue Shopping
 return(
 
 <div style={{
-padding:"40px",
-background:"#0b0d11",
 minHeight:"100vh",
+background:"#020617",
+padding:"40px 20px",
 color:"white"
 }}>
 
-<h1 style={{marginBottom:"30px"}}>Checkout</h1>
+<h1 style={{
+fontSize:"32px",
+marginBottom:"30px"
+}}>
+Checkout
+</h1>
+
+
+{/* EMPTY CART */}
+
+{cart.length === 0 && (
+<h2 style={{opacity:.6}}>
+Your cart is empty
+</h2>
+)}
 
 
 {/* ITEMS */}
@@ -69,20 +70,22 @@ color:"white"
 <div style={{
 display:"flex",
 flexDirection:"column",
-gap:"18px"
+gap:"18px",
+maxWidth:"700px"
 }}>
 
-{cart.map((item,index)=>(
+{cart.map(item=>(
 
 <div
-key={item.id + item.size}
+key={`${item.id}-${item.size}`}
 style={{
 display:"flex",
 gap:"16px",
-background:"#11151c",
-padding:"14px",
-borderRadius:"12px",
-alignItems:"center"
+alignItems:"center",
+background:"linear-gradient(145deg,#0f172a,#020617)",
+padding:"16px",
+borderRadius:"14px",
+border:"1px solid rgba(34,197,94,.15)"
 }}
 >
 
@@ -102,19 +105,21 @@ borderRadius:"10px"
 {item.name}
 </h3>
 
-<p style={{margin:"4px 0",color:"#aaa"}}>
+<p style={{opacity:.7}}>
 Size: {item.size}
 </p>
 
-<p style={{margin:0,fontWeight:"700"}}>
+<p style={{
+color:"#22c55e",
+fontWeight:"700"
+}}>
 ₹{item.price}
 </p>
 
 </div>
 
-{/* ⭐ REMOVE BUTTON */}
 <button
-onClick={()=>removeFromCart(item.id, item.size)}
+onClick={()=>removeFromCart(item.id,item.size)}
 style={{
 background:"#ef4444",
 border:"none",
@@ -122,8 +127,7 @@ color:"white",
 padding:"10px 14px",
 borderRadius:"8px",
 cursor:"pointer",
-fontWeight:"600",
-transition:"0.2s"
+fontWeight:"700"
 }}
 >
 Remove
@@ -138,36 +142,38 @@ Remove
 
 {/* TOTAL */}
 
+{cart.length > 0 && (
+
 <div style={{
 marginTop:"40px",
-borderTop:"1px solid #222",
-paddingTop:"20px"
+maxWidth:"700px"
 }}>
 
-<h2>Total: ₹{total}</h2>
+<h2>
+Total: ₹{total}
+</h2>
 
 <button
-onClick={()=>{
-alert("✅ Razorpay will open here once connected.");
-clearCart();
-router.push("/");
-}}
+onClick={handleWhatsApp}
 style={{
-marginTop:"20px",
+marginTop:"16px",
 width:"100%",
-padding:"16px",
-background:"#22c55e",
+padding:"18px",
+borderRadius:"14px",
 border:"none",
-borderRadius:"12px",
-fontWeight:"800",
 fontSize:"18px",
-cursor:"pointer"
+fontWeight:"800",
+cursor:"pointer",
+background:"linear-gradient(90deg,#22c55e,#4ade80)",
+color:"#022c22"
 }}
 >
-Proceed To Payment
+Checkout on WhatsApp
 </button>
 
 </div>
+
+)}
 
 </div>
 );
