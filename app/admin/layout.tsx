@@ -1,87 +1,108 @@
 'use client';
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { useEffect, useState } from "react";
 
 export default function AdminLayout({
-  children,
+children,
 }:{
-  children:React.ReactNode
+children:React.ReactNode;
 }){
 
-const pathname = usePathname();
+const path = usePathname();
+const router = useRouter();
+const [allowed,setAllowed] = useState(false);
 
-const navItem = (href:string,label:string)=>{
+/* 🔐 ADMIN GUARD */
 
-const active = pathname === href;
+useEffect(()=>{
 
-return(
-<Link href={href}
-style={{
+const unsub = onAuthStateChanged(auth,(user)=>{
+
+if(
+user?.email === "pushkarmanjunath11@gmail.com"
+){
+setAllowed(true);
+}else{
+router.push("/");
+}
+
+});
+
+return ()=>unsub();
+
+},[]);
+
+if(!allowed) return null;
+
+/* NAV STYLE */
+
+const nav = (href:string)=>({
 padding:"14px 18px",
 borderRadius:"12px",
-textDecoration:"none",
+marginBottom:"12px",
+display:"block",
 fontWeight:"700",
-background: active ? "#22c55e" : "transparent",
-color: active ? "#02120a" : "#e5e7eb",
-border:"1px solid rgba(34,197,94,.25)",
-transition:"0.2s"
-}}>
-{label}
-</Link>
-);
-};
+textDecoration:"none",
+background:
+path === href
+? "linear-gradient(135deg,#22c55e,#16a34a)"
+: "transparent",
+color: path === href ? "#02120a" : "#9ca3af",
+transition:"0.25s"
+});
 
 return(
 
 <div style={{
 display:"flex",
 minHeight:"100vh",
-background:"#020617",
-color:"white"
+background:"linear-gradient(180deg,#020617,#000)"
 }}>
 
 {/* SIDEBAR */}
 
 <div style={{
-width:"260px",
-padding:"30px 20px",
-borderRight:"1px solid rgba(34,197,94,.15)",
-background:"linear-gradient(180deg,#020617,#020617,#000)"
+width:"300px",
+background:"linear-gradient(180deg,#020617,#000)",
+boxShadow:"20px 0 60px rgba(0,0,0,.8)",
+padding:"30px",
+borderRight:"1px solid rgba(255,255,255,.06)",
+backdropFilter:"blur(20px)"
 }}>
 
-<h2 style={{
-color:"#22c55e",
+<h1 style={{
+fontSize:"28px",
 fontWeight:"900",
-letterSpacing:"1px"
+letterSpacing:"1px",
+marginBottom:"40px",
+color:"#22c55e"
 }}>
-Boots Vault
-</h2>
+⚡ Boots Vault Admin
+</h1>
 
-<p style={{
-color:"#9ca3af",
-fontSize:"13px"
-}}>
-Admin Dashboard
-</p>
+<Link href="/admin" style={nav("/admin")}>
+Dashboard
+</Link>
 
-<div style={{
-display:"flex",
-flexDirection:"column",
-gap:"14px",
-marginTop:"30px"
-}}>
+<Link href="/admin/orders" style={nav("/admin/orders")}>
+Orders
+</Link>
 
-{navItem("/admin","➕ New Product")}
-{navItem("/admin/orders","📦 Orders")}
-{navItem("/admin/analytics","📊 Analytics")}
+<Link href="/admin/products" style={nav("/admin/products")}>
+Products
+</Link>
+
+<Link href="/admin/analytics" style={nav("/admin/analytics")}>
+Analytics
+</Link>
 
 </div>
 
-</div>
-
-
-{/* MAIN CONTENT */}
+{/* MAIN */}
 
 <div style={{
 flex:1,

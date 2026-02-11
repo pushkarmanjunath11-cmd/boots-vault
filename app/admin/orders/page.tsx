@@ -14,8 +14,6 @@ export default function OrdersPage(){
 const [orders,setOrders] = useState<any[]>([]);
 
 useEffect(()=>{
-fetchOrders();
-},[]);
 
 async function fetchOrders(){
 
@@ -29,102 +27,85 @@ id:doc.id,
 setOrders(list);
 }
 
+fetchOrders();
 
-/* ✅ UPDATE STATUS — NOT CREATE ORDER */
+},[]);
 
-async function updateStatus(id:string,status:string){
 
-const ref = doc(db,"orders",id);
+/* 🔥 CHANGE STATUS */
 
-await updateDoc(ref,{
+async function changeStatus(id:string,status:string){
+
+await updateDoc(doc(db,"orders",id),{
 status
 });
 
 setOrders(prev =>
 prev.map(o =>
 o.id === id ? {...o,status} : o
-)
-);
+));
 
 }
 
+
 return(
 
-<div style={{
-padding:"40px",
-background:"#020617",
-minHeight:"100vh",
-color:"white"
-}}>
+<div>
 
-<h1 style={{fontSize:"32px",fontWeight:"800"}}>
-Orders Dashboard
+<h1 style={{marginBottom:"30px"}}>
+Orders
 </h1>
 
 {orders.map(order=>(
 
 <div key={order.id}
 style={{
-background:"#07122a",
-padding:"25px",
-borderRadius:"16px",
-marginTop:"25px",
-border:"1px solid rgba(34,197,94,.2)"
+background:"linear-gradient(145deg,#07122a,#020617)",
+border:"1px solid rgba(34,197,94,.15)",
+boxShadow:"0 20px 60px rgba(0,0,0,.6)",
+padding:"20px",
+borderRadius:"14px",
+marginBottom:"20px"
 }}
 >
 
-<h2>Invoice: {order.invoice}</h2>
+<h3>₹{order.total}</h3>
 
-<p>
-Customer: {order.email}
-</p>
-
-<p>
-Total: ₹{order.total}
-</p>
-
-<p>
-Status:
+<p>Status: 
 <span style={{
-color:"#22c55e",
-marginLeft:"8px",
-fontWeight:"700"
+color:
+order.status === "Delivered"
+? "#22c55e"
+: order.status === "Shipped"
+? "#60a5fa"
+: "#facc15"
 }}>
-{order.status}
 </span>
 </p>
 
+<select
+value={order.status}
+onChange={(e)=>changeStatus(order.id,e.target.value)}
+style={{
+padding:"8px",
+borderRadius:"6px",
+marginTop:"10px"
+}}
+>
+<option>Processing</option>
+<option>Shipped</option>
+<option>Out for Delivery</option>
+<option>Delivered</option>
+</select>
 
-{/* ITEMS */}
 
-<div style={{marginTop:"10px"}}>
-{order.items?.map((item:any)=>(
+<div style={{marginTop:"15px"}}>
+
+{order.items.map((item:any)=>(
 <p key={item.name}>
 • {item.name} — Size {item.size}
 </p>
 ))}
-</div>
-
-
-{/* STATUS BUTTONS */}
-
-<div style={{
-display:"flex",
-gap:"10px",
-marginTop:"20px"
-}}>
-
-<button onClick={()=>updateStatus(order.id,"Processing")}>
-Processing
-</button>
-
-<button onClick={()=>updateStatus(order.id,"Shipped")}>
-Shipped
-</button>
-
-<button onClick={()=>updateStatus(order.id,"Delivered")}>
-Delivered
-</button>
 
 </div>
 

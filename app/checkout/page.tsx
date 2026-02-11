@@ -43,7 +43,7 @@ return;
 
 await addDoc(collection(db,"orders"),{
 
-invoice:"INV-"+Date.now(),
+invoice:"BV-"+Math.floor(100000 + Math.random()*900000)+Date.now(),
 userId:user.uid,
 email:user.email,
 

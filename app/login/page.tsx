@@ -2,18 +2,31 @@
 
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage(){
+
+const router = useRouter();
+const [user,setUser] = useState<any>(null);
 
 async function handleLogin(){
 
 const provider = new GoogleAuthProvider();
 
-await signInWithPopup(auth, provider);
+const result = await signInWithPopup(auth, provider);
 
-window.location.href = "/";
+const email = result.user.email;
 
-}
+if(
+email === "pushkarmanjunath11@gmail.com" ||
+email === "bootsvault.ph@gmail.com"
+){
+window.location.href="/admin";
+}else{
+alert("You are not an admin.");
+await auth.signOut();
+}}
 
 return(
 

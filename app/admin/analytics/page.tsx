@@ -33,24 +33,28 @@ return(
 
 <div>
 
-<h1 style={{fontWeight:"900"}}>
-Analytics
-</h1>
+<h1>Analytics</h1>
 
 <div style={{
 display:"flex",
-gap:"30px",
+gap:"20px",
 marginTop:"30px"
 }}>
 
 <div style={card}>
-<h2>₹{revenue}</h2>
-<p>Total Revenue</p>
+<h2>Revenue</h2>
+<p style={{
+fontSize:"34px",
+fontWeight:"900",
+color:"#22c55e"
+}}>
+₹{revenue}
+</p>
 </div>
 
 <div style={card}>
-<h2>{orders}</h2>
-<p>Total Orders</p>
+<h2>Orders</h2>
+<p>{orders}</p>
 </div>
 
 </div>
@@ -63,6 +67,7 @@ const card = {
 background:"linear-gradient(145deg,#07122a,#020617)",
 padding:"40px",
 borderRadius:"18px",
-border:"1px solid rgba(34,197,94,.15)",
-minWidth:"220px"
+minWidth:"260px",
+border:"1px solid rgba(34,197,94,.2)",
+boxShadow:"0 25px 70px rgba(0,0,0,.6)"
 };

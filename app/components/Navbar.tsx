@@ -6,7 +6,7 @@ import CartDrawer from "./CartDrawer";
 import { useCart } from "../context/CartContext";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Navbar(){
 
@@ -17,6 +17,11 @@ const [cartOpen,setCartOpen] = useState(false);
 const [dropdown,setDropdown] = useState(false);
 const [user,setUser] = useState<any>(undefined);
 
+/* 🔥 refs for outside click */
+const dropdownRef = useRef<HTMLDivElement>(null);
+
+
+/* ✅ auth listener */
 useEffect(()=>{
 const unsub = onAuthStateChanged(auth,(u)=>{
 setUser(u);
@@ -25,105 +30,150 @@ setUser(u);
 return ()=>unsub();
 },[]);
 
+
+/* ✅ CLOSE DROPDOWN WHEN CLICK OUTSIDE */
+useEffect(()=>{
+
+function handleClick(e:any){
+if(dropdownRef.current && !dropdownRef.current.contains(e.target)){
+setDropdown(false);
+}
+}
+
+document.addEventListener("mousedown",handleClick);
+
+return ()=>{
+document.removeEventListener("mousedown",handleClick);
+};
+
+},[]);
+
+
+/* ✅ AUTO CLOSE CART ON PAGE CHANGE */
+useEffect(()=>{
+setCartOpen(false);
+},[pathname]);
+
+
+
 return(
 <>
 <div style={{
 display:"flex",
 justifyContent:"space-between",
 alignItems:"center",
-padding:"18px 40px",
-background:"#020617",
-borderBottom:"1px solid rgba(34,197,94,.15)",
+padding:"18px 48px",
+background:"rgba(2,6,23,.75)",
+backdropFilter:"blur(16px)",
+borderBottom:"1px solid rgba(34,197,94,.12)",
 position:"sticky",
 top:0,
-zIndex:999
+zIndex:9999
 }}>
 
-{/* LOGO */}
+{/* 🔥 LOGO */}
+
 <Link href="/" style={{
-color:"#22c55e",
 fontWeight:"900",
-fontSize:"24px",
-textDecoration:"none",
-letterSpacing:"1px"
+fontSize:"26px",
+letterSpacing:"1px",
+textDecoration:"none"
 }}>
+
 <span style={{
-color:"#22c55e",
-fontWeight:"900",
-letterSpacing:"2px"
+color:"#22c55e"
 }}>
 Boots
 </span>
 
-<span style={{fontWeight:"800"}}>
+<span style={{
+color:"white"
+}}>
 Vault
 </span>
 
 </Link>
 
-{/* NAV ITEMS */}
+
+
+{/* NAV RIGHT */}
+
 <div style={{
 display:"flex",
 alignItems:"center",
 gap:"28px"
 }}>
 
+{/* SHOP */}
+
 <Link href="/"
 style={{
 color: pathname === "/" ? "#22c55e" : "#9ca3af",
+fontWeight:"700",
 textDecoration:"none",
-fontWeight:"600"
+transition:"0.25s"
 }}>
 Shop
 </Link>
 
 
+
 {/* CART */}
+
 <button
 onClick={()=>setCartOpen(true)}
 style={{
-background:"transparent",
-border:"none",
+background:"rgba(255,255,255,.05)",
+border:"1px solid rgba(255,255,255,.08)",
+borderRadius:"12px",
+padding:"8px 14px",
 color:"white",
-fontSize:"20px",
-cursor:"pointer"
+cursor:"pointer",
+fontWeight:"600"
 }}
 >
 🛒 {cart.length}
 </button>
 
 
+
 {/* ACCOUNT */}
-<div style={{position:"relative"}}>
+
+<div ref={dropdownRef} style={{position:"relative"}}>
 
 <button
 onClick={()=>setDropdown(!dropdown)}
 style={{
-background:"transparent",
-border:"1px solid rgba(255,255,255,.15)",
+width:"42px",
+height:"42px",
 borderRadius:"50%",
-width:"40px",
-height:"40px",
-fontSize:"18px",
-cursor:"pointer"
+border:"1px solid rgba(255,255,255,.12)",
+background:"rgba(255,255,255,.05)",
+color:"white",
+cursor:"pointer",
+fontSize:"18px"
 }}
 >
 👤
 </button>
 
-{/* DROPDOWN */}
+
+
+{/* 🔥 DROPDOWN */}
 
 {dropdown && (
 
 <div style={{
 position:"absolute",
 right:0,
-top:"50px",
-background:"#020617",
-border:"1px solid rgba(34,197,94,.2)",
-borderRadius:"12px",
+top:"55px",
+background:"rgba(2,6,23,.95)",
+backdropFilter:"blur(20px)",
+border:"1px solid rgba(34,197,94,.18)",
+borderRadius:"14px",
 padding:"10px",
-width:"180px"
+width:"200px",
+boxShadow:"0 20px 60px rgba(0,0,0,.6)"
 }}>
 
 {user === undefined ? null : !user ? (
@@ -138,17 +188,17 @@ Login
 ) : (
 
 <>
-<button style={dropdownBtn}>My Orders</button>
 <button
-style={dropdownBtn}
-onClick={()=>signOut(auth)}
->
-    <button
-style={dropdownBtn}
 onClick={()=>window.location.href="/track"}
+style={dropdownBtn}
 >
 Track Order
 </button>
+
+<button
+onClick={()=>signOut(auth)}
+style={dropdownBtn}
+>
 Logout
 </button>
 </>
@@ -162,6 +212,7 @@ Logout
 </div>
 
 </div>
+
 </div>
 
 <CartDrawer open={cartOpen} setOpen={setCartOpen}/>
@@ -170,12 +221,16 @@ Logout
 );
 }
 
+
+
 const dropdownBtn = {
 width:"100%",
-padding:"10px",
+padding:"12px",
 background:"transparent",
 border:"none",
 color:"white",
 cursor:"pointer",
-textAlign:"left" as const
+textAlign:"left" as const,
+borderRadius:"8px",
+fontWeight:"600"
 };
