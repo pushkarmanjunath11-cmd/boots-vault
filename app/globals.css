@@ -210,3 +210,87 @@ body {
   backdrop-filter:blur(20px);
   border:1px solid var(--border);
 }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  /* Navbar */
+  nav { padding: 0 20px !important; }
+
+  /* Hero */
+  section[style*="100vh"] div[style*="maxWidth: 1200"],
+  section[style*="100vh"] div[style*="max-width: 1200"] {
+    padding: 0 20px 60px !important;
+  }
+
+  /* General padding */
+  .mobile-pad { padding-left: 20px !important; padding-right: 20px !important; }
+
+  /* Footer grid */
+  footer div[style*="gridTemplateColumns: '2fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  /* Stats grid */
+  div[style*="repeat(4, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Trust grid */
+  div[style*="repeat(auto-fill, minmax(258"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Product grid */
+  div[style*="repeat(auto-fill, minmax(290"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  div[style*="repeat(auto-fill, minmax(300"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="repeat(auto-fill, minmax(280"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* PDP grid */
+  div[style*="gridTemplateColumns: '1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+
+  /* Checkout grid */
+  div[style*="gridTemplateColumns: '1fr 360"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* CTA banner padding */
+  div[style*="padding: '80px 56px'"] {
+    padding: 48px 24px !important;
+  }
+  div[style*="padding: '88px 56px'"] {
+    padding: 48px 24px !important;
+  }
+
+  /* Banner split layout */
+  div[style*="gridTemplateColumns: '1fr 1fr'"][style*="gap: 64"] {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  /* Font sizes */
+  .font-display[style*="fontSize: 'clamp(80px"] {
+    font-size: clamp(56px, 15vw, 96px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Single column products on very small screens */
+  div[style*="repeat(auto-fill, minmax(290"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="repeat(auto-fill, minmax(280"] {
+    grid-template-columns: 1fr !important;
+  }
+}

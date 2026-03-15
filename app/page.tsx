@@ -136,7 +136,7 @@ export default function HomePage() {
           <div className="font-display" style={{ position: 'absolute', right: '-3%', top: '50%', transform: `translateY(-54%) translateY(${scrollY * 0.12}px)`, fontSize: 'clamp(200px,30vw,480px)', lineHeight: 0.85, color: 'transparent', WebkitTextStroke: '1px rgba(34,197,94,0.04)', pointerEvents: 'none', zIndex: 1, userSelect: 'none', letterSpacing: '-0.03em' }}>BV</div>
 
           {/* Content */}
-          <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 48px 80px' }}>
+          <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 1200, margin: '0 auto', padding: 'clamp(16px, 4vw, 48px)', paddingBottom: 'clamp(60px, 8vw, 80px)' }}>
 
             {/* Category tag */}
             <div style={{ opacity: loaded ? 1 : 0, transition: 'opacity 0.6s 0.2s', marginBottom: 20 }}>
@@ -236,7 +236,7 @@ export default function HomePage() {
         </div>
 
         {/* ══════════════ FEATURED PRODUCTS ══════════════ */}
-        <section style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 48px' }}>
+        <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(48px,8vw,96px) clamp(20px,4vw,48px)' }}>
           <div className="reveal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 48, flexWrap: 'wrap', gap: 16 }}>
             <div>
               <span className="section-tag">The Collection</span>
@@ -315,7 +315,7 @@ export default function HomePage() {
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, var(--green), transparent)', animation: 'borderPulse 3s ease-in-out infinite' }} />
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(34,197,94,0.3), transparent)' }} />
 
-          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 48px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center', width: '100%' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(40px,6vw,80px) clamp(20px,4vw,48px)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center', width: '100%' }}>
             <div className="reveal left">
               <span className="section-tag" style={{ marginBottom: 20 }}>Why Boots Vault</span>
               <h2 className="font-display" style={{ fontSize: 'clamp(40px,5vw,72px)', color: 'var(--white)', lineHeight: 0.9, marginBottom: 24 }}>
@@ -345,7 +345,7 @@ export default function HomePage() {
         </div>
 
         {/* ══════════════ REVIEWS ══════════════ */}
-        <section style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 48px' }}>
+        <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(48px,8vw,96px) clamp(20px,4vw,48px)' }}>
           <div className="reveal" style={{ textAlign: 'center', marginBottom: 52 }}>
             <span className="section-tag" style={{ margin: '0 auto 16px', display: 'table' }}>Customer Reviews</span>
             <h2 className="font-display" style={{ fontSize: 'clamp(40px,5vw,72px)', color: 'var(--white)', lineHeight: 0.9 }}>
@@ -373,7 +373,7 @@ export default function HomePage() {
         </section>
 
         {/* ══════════════ INSTAGRAM ══════════════ */}
-        <div style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)', padding: '52px 48px' }}>
+        <div style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)', padding: 'clamp(32px,5vw,52px) clamp(20px,4vw,48px)' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 24 }}>
             <div className="reveal">
               <span className="section-tag">Follow Us</span>
@@ -389,7 +389,7 @@ export default function HomePage() {
         </div>
 
         {/* ══════════════ FINAL CTA ══════════════ */}
-        <section style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 48px' }}>
+        <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(40px,6vw,80px) clamp(20px,4vw,48px)' }}>
           <div className="reveal" style={{ position: 'relative', overflow: 'hidden', background: 'var(--bg2)', border: '1px solid rgba(34,197,94,0.14)', padding: '88px 56px', textAlign: 'center' }}>
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 600, height: 400, background: 'radial-gradient(ellipse, rgba(34,197,94,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, var(--green), rgba(212,175,55,0.4), transparent)', animation: 'borderPulse 3s ease-in-out infinite' }} />

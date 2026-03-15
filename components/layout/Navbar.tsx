@@ -44,13 +44,13 @@ export function Navbar() {
   return (
     <nav style={{
       position:'fixed', top:0, left:0, right:0, zIndex:1000,
-      height:68,
+      height:60,
       background: scrolled ? 'rgba(8,8,8,0.97)' : 'rgba(8,8,8,0.3)',
       backdropFilter: 'blur(24px)',
       borderBottom: `1px solid ${scrolled ? 'rgba(242,242,237,0.08)' : 'transparent'}`,
       transition: 'all 0.4s cubic-bezier(0.22,1,0.36,1)',
       display:'flex', alignItems:'center', justifyContent:'space-between',
-      padding:'0 48px',
+      padding:'0 20px',
     }}>
 
       {/* Logo */}
