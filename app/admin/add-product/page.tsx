@@ -7,11 +7,9 @@ import { Plus, Trash2, Check, Image as ImageIcon } from 'lucide-react'
 const sizes = ['6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11']
 const brands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'Mizuno', 'Under Armour']
 const categories = [
-  { id: 'boots',           label: 'Boots' },
-  { id: 'jerseys-jackets', label: 'Jerseys & Jackets' },
-  { id: 'balls',           label: 'Balls' },
-  { id: 'gloves',          label: 'Gloves' },
-  { id: 'essentials',        label: 'Essentials' },
+  { id: 'football-boots', label: 'Football Boots (FG/AG)' },
+  { id: 'turf', label: 'Turf Boots (TF)' },
+  { id: 'futsal', label: 'Futsal (IC)' },
 ]
 
 const inp = { width: '100%', background: '#0d0d0d', border: '1px solid rgba(245,245,240,0.07)', padding: '13px 16px', fontSize: 13, color: '#f5f5f0', outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'Montserrat, sans-serif', transition: 'border-color 0.2s' }

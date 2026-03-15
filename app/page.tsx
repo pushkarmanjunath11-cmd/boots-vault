@@ -1,12 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState, useRef } from 'react'
-import { ArrowRight, Star, Shield, Truck, RefreshCcw, BadgeCheck, Instagram, ChevronRight, Zap, Play } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowRight, Star, Shield, Truck, RefreshCcw, BadgeCheck, Instagram, ChevronRight, Zap } from 'lucide-react'
 import { products } from '@/lib/data'
 
 const allProducts = products.slice(0, 6)
-const brands = ['NIKE', 'ADIDAS', 'PUMA', 'MIZUNO']
+const brands = ['NIKE', 'ADIDAS', 'PUMA', 'NEW BALANCE', 'MIZUNO', 'UNDER ARMOUR', 'ASICS', 'UMBRO']
 
 const trust = [
   { icon: BadgeCheck, title: '100% Authentic', desc: 'Sourced directly from authorised distributors. Zero fakes, zero exceptions.', color: '#22c55e' },
@@ -29,28 +29,6 @@ function useReveal() {
     }, { threshold: 0.08 })
     els.forEach(el => obs.observe(el))
     return () => obs.disconnect()
-  }, [])
-}
-
-function useCursor() {
-  useEffect(() => {
-    const cursor = document.getElementById('cursor')
-    const ring = document.getElementById('cursor-ring')
-    if (!cursor || !ring) return
-    let rx = 0, ry = 0
-    const move = (e: MouseEvent) => {
-      cursor.style.left = e.clientX + 'px'
-      cursor.style.top  = e.clientY + 'px'
-      rx += (e.clientX - rx) * 0.12
-      ry += (e.clientY - ry) * 0.12
-      ring.style.left = rx + 'px'
-      ring.style.top  = ry + 'px'
-    }
-    let raf: number
-    const animate = () => { raf = requestAnimationFrame(animate) }
-    animate()
-    window.addEventListener('mousemove', move)
-    return () => { window.removeEventListener('mousemove', move); cancelAnimationFrame(raf) }
   }, [])
 }
 
@@ -83,45 +61,37 @@ function useTilt() {
   useEffect(() => {
     const cards = document.querySelectorAll('.tilt-card')
     const handlers: Array<{ el: HTMLElement, move: (e: Event) => void, leave: (e: Event) => void }> = []
-    
     cards.forEach(card => {
       const el = card as HTMLElement
-      
       const move = (e: Event) => {
-        const mouseEvent = e as MouseEvent
+        const me = e as MouseEvent
         const r = el.getBoundingClientRect()
-        const x = (mouseEvent.clientX - r.left) / r.width - 0.5
-        const y = (mouseEvent.clientY - r.top) / r.height - 0.5
+        const x = (me.clientX - r.left) / r.width  - 0.5
+        const y = (me.clientY - r.top)  / r.height - 0.5
         el.style.transform = `perspective(800px) rotateY(${x * 10}deg) rotateX(${-y * 8}deg) translateY(-6px)`
         const glare = el.querySelector('.glare') as HTMLElement
-        if (glare) glare.style.background = `radial-gradient(circle at ${(x + 0.5) * 100}% ${(y + 0.5) * 100}%, rgba(255,255,255,0.08) 0%, transparent 60%)`
+        if (glare) glare.style.background = `radial-gradient(circle at ${(x+0.5)*100}% ${(y+0.5)*100}%, rgba(255,255,255,0.08) 0%, transparent 60%)`
       }
-
-      const leave = (e: Event) => {
+      const leave = (_e: Event) => {
         el.style.transform = ''
         const g = el.querySelector('.glare') as HTMLElement
         if (g) g.style.background = ''
       }
-
       el.addEventListener('mousemove', move)
       el.addEventListener('mouseleave', leave)
       handlers.push({ el, move, leave })
     })
-
-    return () => {
-      handlers.forEach(({ el, move, leave }) => {
-        el.removeEventListener('mousemove', move)
-        el.removeEventListener('mouseleave', leave)
-      })
-    }
+    return () => handlers.forEach(({ el, move, leave }) => {
+      el.removeEventListener('mousemove', move)
+      el.removeEventListener('mouseleave', leave)
+    })
   }, [])
 }
 
 export default function HomePage() {
   const [loaded, setLoaded] = useState(false)
   const [scrollY, setScrollY] = useState(0)
-  const heroRef = useRef<HTMLDivElement>(null)
-  useReveal(); useCursor(); useCountUp(); useTilt()
+  useReveal(); useCountUp(); useTilt()
 
   useEffect(() => {
     setTimeout(() => setLoaded(true), 60)
@@ -132,11 +102,10 @@ export default function HomePage() {
 
   return (
     <>
-
       <div style={{ background: 'var(--bg)' }}>
 
         {/* ══════════════ HERO ══════════════ */}
-        <section ref={heroRef} style={{ position: 'relative', height: '100vh', minHeight: 700, overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
+        <section style={{ position: 'relative', height: '100vh', minHeight: 700, overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
 
           {/* Hero image placeholder — replace /hero.jpg with your actual image */}
           <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
@@ -292,12 +261,12 @@ export default function HomePage() {
 
                   {/* Image */}
                   <div style={{ height: 260, background: `linear-gradient(135deg, var(--bg4) 0%, var(--bg3) 100%)`, position: 'relative', overflow: 'hidden' }}>
-                    {/* Rich placeholder */}
-                    <div style={{ position:'absolute', inset:0, background:`linear-gradient(135deg, #161616 0%, #1e1e1e 50%, #141414 100%)` }} />
-                    <div style={{ position:'absolute', inset:0, backgroundImage:'linear-gradient(rgba(34,197,94,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.04) 1px, transparent 1px)', backgroundSize:'32px 32px' }} />
-                    <div className="font-display" style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', fontSize:96, color:'rgba(242,242,237,0.04)', userSelect:'none', pointerEvents:'none', lineHeight:1, letterSpacing:'0.02em' }}>{p.brand.toUpperCase()}</div>
-                    <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:64, height:64, border:'1px solid rgba(34,197,94,0.08)', borderRadius:'50%' }} />
-                    <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:40, height:40, border:'1px solid rgba(34,197,94,0.05)', borderRadius:'50%' }} />
+                    {/* Placeholder pattern */}
+                    <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(34,197,94,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
+                    {/* Brand initial watermark */}
+                    <div className="font-display" style={{ position: 'absolute', bottom: -10, right: -10, fontSize: 120, color: 'rgba(242,242,237,0.03)', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>{p.brand[0]}</div>
+
                     <div className="img-dark" />
 
                     {/* Badges */}

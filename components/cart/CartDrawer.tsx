@@ -11,9 +11,9 @@ export function CartDrawer() {
 
   return (
     <>
-      {isOpen && <div onClick={closeCart} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', zIndex:1000, backdropFilter:'blur(4px)', animation:'fadeIn 0.3s ease' }} />}
+      {isOpen && <div onClick={closeCart} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', zIndex:990, backdropFilter:'blur(4px)', animation:'fadeIn 0.3s ease' }} />}
 
-      <div style={{ position:'fixed', top:0, right:0, bottom:0, width:420, zIndex:1001, background:'#0f0f0f', borderLeft:'1px solid rgba(242,242,237,0.08)', transform: isOpen ? 'translateX(0)' : 'translateX(100%)', transition:'transform 0.45s cubic-bezier(0.22,1,0.36,1)', display:'flex', flexDirection:'column' }}>
+      <div style={{ position:'fixed', top:0, right:0, bottom:0, width:420, zIndex:991, background:'#0f0f0f', borderLeft:'1px solid rgba(242,242,237,0.08)', transform: isOpen ? 'translateX(0)' : 'translateX(100%)', transition:'transform 0.45s cubic-bezier(0.22,1,0.36,1)', display:'flex', flexDirection:'column' }}>
 
         {/* Green top line */}
         <div style={{ height:2, background:'linear-gradient(90deg, var(--green), rgba(212,175,55,0.4), transparent)', animation: isOpen ? 'borderPulse 3s ease-in-out infinite' : 'none' }} />

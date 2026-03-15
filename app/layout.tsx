@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     description: 'The finest football boots. Nike, Adidas, Puma and more.',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
-  icons: { icon: 'public/logo.png' },
+  icons: { icon: '/favicon.ico' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

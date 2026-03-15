@@ -139,11 +139,9 @@ export const products: Product[] = [
 ]
 
 export const categories = [
-  { id: 'boots',            label: 'Boots',             description: 'Football boots, FG/AG/TF/IC' },
-  { id: 'jerseys-jackets',  label: 'Jerseys & Jackets',  description: 'Kits, training tops, jackets' },
-  { id: 'balls',            label: 'Balls',              description: 'Match and training balls' },
-  { id: 'gloves',           label: 'Gloves',             description: 'Goalkeeper and outfield gloves' },
-  { id: 'essential',         label: 'Essential',           description: 'Essential Gear' },
+  { id: 'football-boots', label: 'Football Boots', description: 'FG / AG — Firm & Artificial Ground' },
+  { id: 'turf', label: 'Turf Boots', description: 'TF — Turf & Hard Ground' },
+  { id: 'futsal', label: 'Futsal', description: 'IC — Indoor & Futsal Courts' },
 ]
 
 export const brands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'Mizuno']
