@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Star, ArrowLeft, ShoppingBag, Check, ChevronLeft, ChevronRight, Zap, Shield, Truck, RefreshCcw } from 'lucide-react'
+import { Star, ArrowLeft, ArrowRight, ShoppingBag, Check, ChevronLeft, ChevronRight, Zap, Shield, Truck, RefreshCcw } from 'lucide-react'
 import { subscribeProducts } from '@/lib/productService'
 import { products as staticProducts } from '@/lib/data'
 import { useCartStore } from '@/lib/store'
