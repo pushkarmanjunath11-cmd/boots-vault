@@ -52,8 +52,13 @@ export function Navbar() {
     }}>
 
       <Link href="/" style={{ textDecoration:'none', flexShrink:0 }}>
-        <span className="font-display" style={{ fontSize:'clamp(18px,3vw,22px)', color:'var(--white)', letterSpacing:'0.08em' }}>
-          BOOTS <span style={{ color:'var(--green)' }}>VAULT</span>
+        <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: '0.08em' }}>
+          <span style={{ color: '#f2f2ed', transition: 'color 0.2s' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#22c55e')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#f2f2ed')}>
+            BOOTS{' '}
+          </span>
+          <span style={{ color: '#22c55e' }}>VAULT</span>
         </span>
       </Link>
 
