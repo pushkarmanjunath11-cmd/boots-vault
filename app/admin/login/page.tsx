@@ -15,7 +15,7 @@ export default function AdminLogin() {
     setLoading(true); setError('')
     setTimeout(() => {
       // 🔴 Change these credentials
-      if (form.email.trim() === 'admin@bootsvault.com' && form.password.trim() === 'bootsvault2025') {
+      if (form.email.trim() === 'ADMIN_GMAIL' && form.password.trim() === 'ADMIN_PASSWORD') {
         localStorage.setItem('bv_admin', 'true')
         router.push('/admin')
       } else {
