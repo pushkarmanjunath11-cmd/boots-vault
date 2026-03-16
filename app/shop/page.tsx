@@ -162,7 +162,7 @@ function ShopContent() {
                 <div className="product-card" style={{ opacity:0, animation:`fadeUp 0.5s ease ${idx*0.04}s forwards` }}>
                   <div style={{ height:'clamp(180px,25vw,240px)', background:'linear-gradient(135deg, var(--bg4), var(--bg3))', position:'relative', overflow:'hidden' }}>
                     <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(rgba(34,197,94,0.025) 1px, transparent 1px)', backgroundSize:'20px 20px' }} />
-                    <div className="font-display" style={{ position:'absolute', bottom:-8, right:-8, fontSize:110, color:'rgba(242,242,237,0.025)', lineHeight:1, userSelect:'none', pointerEvents:'none' }}>{p.brand[0]}</div>
+                    <div className="font-display" style={{ position:'absolute', bottom:-8, right:-8, fontSize:110, color:'rgba(242,242,237,0.025)', lineHeight:1, userSelect:'none', pointerEvents:'none' }}>{p.brand?.[0] || 'B'}</div>
                     {p.images?.[0] && (
                       <img src={p.images[0]} alt={p.name} style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }} onError={e => (e.currentTarget.style.display='none')} />
                     )}

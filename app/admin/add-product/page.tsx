@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { addProduct } from '@/lib/productService'
 import { Plus, Trash2, Check, Upload } from 'lucide-react'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { auth } from '@/lib/firebase'
 
 const sizes = ['6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11']
 const brands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'Mizuno', 'Under Armour']
@@ -38,7 +37,7 @@ export default function AddProductPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [images, setImages] = useState<string[]>(['', '', ''])
-  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
+  const [uploadingIdxs, setUploadingIdxs] = useState<number[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [form, setForm] = useState({
     name: '', brand: brands[0], category: 'boots', subCategory: 'all-boots',
@@ -56,20 +55,19 @@ export default function AddProductPage() {
   const updateImage = (i: number, val: string) => setImages(p => p.map((img, idx) => idx === i ? val : img))
   const toggleSize = (s: string) => setSelectedSizes(p => p.includes(s) ? p.filter(x => x !== s) : [...p, s])
 
-  // Upload file from file explorer to Firebase Storage
   const handleFileUpload = async (i: number, file: File) => {
-    setUploadingIdx(i)
+    setUploadingIdxs(p => [...p, i])
     try {
       const storage = getStorage()
-      const storageRef = ref(storage, `products/${Date.now()}_${file.name}`)
+      const storageRef = ref(storage, `products/${Date.now()}_${i}_${file.name}`)
       await uploadBytes(storageRef, file)
       const url = await getDownloadURL(storageRef)
       updateImage(i, url)
     } catch (e) {
       console.error('Upload failed:', e)
-      alert('Image upload failed. Make sure Firebase Storage is enabled.')
+      alert('Upload failed. Make sure Firebase Storage is enabled in Firebase Console → Storage.')
     }
-    setUploadingIdx(null)
+    setUploadingIdxs(p => p.filter(x => x !== i))
   }
 
   const save = async () => {
@@ -100,18 +98,24 @@ export default function AddProductPage() {
       })
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
-      setForm({ name: '', brand: brands[0], category: 'boots', subCategory: 'all-boots', price: '', originalPrice: '', description: '', longDescription: '', inStock: true, featured: false, isNew: false })
+      setForm({
+        name: '', brand: brands[0], category: 'boots', subCategory: 'all-boots',
+        price: '', originalPrice: '', description: '', longDescription: '',
+        inStock: true, featured: false, isNew: false,
+      })
       setImages(['', '', ''])
       setSelectedSizes([])
     } catch (e) {
       console.error(e)
-      alert('Failed to save product. Check your Firebase connection.')
+      alert('Failed to save product. Check your Firebase connection and Vercel env variables.')
     }
     setSaving(false)
   }
 
   return (
     <div style={{ maxWidth: 960, color: '#f5f5f0', fontFamily: 'Montserrat, sans-serif' }}>
+
+      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
         <div>
           <h1 className="font-display" style={{ fontSize: 36, color: '#f5f5f0', letterSpacing: '0.05em' }}>ADD PRODUCT</h1>
@@ -124,18 +128,22 @@ export default function AddProductPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20 }}>
+
+        {/* Left column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           {/* Basic Info */}
           <div style={section('#22c55e')}>
             <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#f5f5f0', marginBottom: 20 }}>Basic Info</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
               <div>
                 <label style={lbl}>Product Name *</label>
                 <input name="name" value={form.name} onChange={handle} placeholder="e.g. Predator Elite FG" style={inp}
                   onFocus={e => (e.target.style.borderColor = 'rgba(34,197,94,0.4)')}
                   onBlur={e => (e.target.style.borderColor = 'rgba(245,245,240,0.07)')} />
               </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
                   <label style={lbl}>Brand *</label>
@@ -151,7 +159,6 @@ export default function AddProductPage() {
                 </div>
               </div>
 
-              {/* Boot sub-category */}
               {form.category === 'boots' && (
                 <div>
                   <label style={lbl}>Boot Type</label>
@@ -182,6 +189,7 @@ export default function AddProductPage() {
                   onFocus={e => (e.target.style.borderColor = 'rgba(34,197,94,0.4)')}
                   onBlur={e => (e.target.style.borderColor = 'rgba(245,245,240,0.07)')} />
               </div>
+
               <div>
                 <label style={lbl}>Full Description</label>
                 <textarea name="longDescription" value={form.longDescription} onChange={handle} rows={4} placeholder="Detailed product description..." style={{ ...inp, resize: 'none' }}
@@ -201,45 +209,58 @@ export default function AddProductPage() {
             </div>
             <p style={{ fontSize: 11, color: 'rgba(245,245,240,0.25)', marginBottom: 16 }}>Upload from your computer or paste a URL. First image is the main thumbnail.</p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {images.map((img, i) => (
-                <div key={i}>
+                <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+
                   {/* Preview */}
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
-                    <div style={{ width: 56, height: 56, background: '#0a0a0a', border: '1px solid rgba(245,245,240,0.07)', flexShrink: 0, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {uploadingIdx === i ? (
-                        <div style={{ width: 20, height: 20, border: '2px solid rgba(245,245,240,0.1)', borderTopColor: '#22c55e', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                      ) : img ? (
-                        <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => (e.currentTarget.style.display = 'none')} />
-                      ) : (
-                        <Upload size={16} color="rgba(245,245,240,0.15)" />
-                      )}
-                    </div>
-
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {/* File upload button */}
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 14px', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'Montserrat', transition: 'all 0.2s' }}
-                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(34,197,94,0.14)')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(34,197,94,0.08)')}>
-                        <Upload size={12} />
-                        {uploadingIdx === i ? 'Uploading...' : 'Upload from Computer'}
-                        <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploadingIdx !== null}
-                          onChange={e => { const file = e.target.files?.[0]; if (file) handleFileUpload(i, file) }} />
-                      </label>
-
-                      {/* Or paste URL */}
-                      <input value={img} onChange={e => updateImage(i, e.target.value)} placeholder="Or paste image URL here"
-                        style={{ ...inp, fontSize: 12 }}
-                        onFocus={e => (e.target.style.borderColor = 'rgba(212,175,55,0.4)')}
-                        onBlur={e => (e.target.style.borderColor = 'rgba(245,245,240,0.07)')} />
-                    </div>
-
-                    {images.length > 1 && (
-                      <button onClick={() => removeImageSlot(i)} style={{ padding: 8, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', cursor: 'pointer', color: '#f87171', flexShrink: 0 }}>
-                        <Trash2 size={13} />
-                      </button>
+                  <div style={{ width: 64, height: 64, background: '#0a0a0a', border: '1px solid rgba(245,245,240,0.07)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    {uploadingIdxs.includes(i) ? (
+                      <div style={{ width: 22, height: 22, border: '2px solid rgba(245,245,240,0.1)', borderTopColor: '#22c55e', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                    ) : img ? (
+                      <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => (e.currentTarget.style.display = 'none')} />
+                    ) : (
+                      <Upload size={18} color="rgba(245,245,240,0.12)" />
                     )}
                   </div>
+
+                  {/* Inputs */}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+                    {/* Upload button */}
+                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 14px', background: uploadingIdxs.includes(i) ? 'rgba(34,197,94,0.05)' : 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', cursor: uploadingIdxs.includes(i) ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 700, color: uploadingIdxs.includes(i) ? 'rgba(34,197,94,0.4)' : '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: 'Montserrat', transition: 'all 0.2s' }}>
+                      <Upload size={13} />
+                      {uploadingIdxs.includes(i) ? 'Uploading...' : 'Upload from Computer'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        disabled={uploadingIdxs.includes(i)}
+                        onChange={e => {
+                          const file = e.target.files?.[0]
+                          if (file) handleFileUpload(i, file)
+                          e.target.value = ''
+                        }}
+                      />
+                    </label>
+
+                    {/* URL input */}
+                    <input
+                      value={img}
+                      onChange={e => updateImage(i, e.target.value)}
+                      placeholder="Or paste image URL here"
+                      style={{ ...inp, fontSize: 12 }}
+                      onFocus={e => (e.target.style.borderColor = 'rgba(212,175,55,0.4)')}
+                      onBlur={e => (e.target.style.borderColor = 'rgba(245,245,240,0.07)')}
+                    />
+                  </div>
+
+                  {/* Remove */}
+                  {images.length > 1 && (
+                    <button onClick={() => removeImageSlot(i)} style={{ padding: 8, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', cursor: 'pointer', color: '#f87171', flexShrink: 0, marginTop: 2 }}>
+                      <Trash2 size={13} />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -257,6 +278,7 @@ export default function AddProductPage() {
               ))}
             </div>
           </div>
+
         </div>
 
         {/* Right sidebar */}
@@ -266,16 +288,16 @@ export default function AddProductPage() {
           <div style={section('#22c55e')}>
             <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#f5f5f0', marginBottom: 20 }}>Flags</h2>
             {[
-              { key: 'inStock',  label: 'In Stock',     sub: 'Show as available' },
-              { key: 'featured', label: 'Featured',     sub: 'Homepage spotlight' },
-              { key: 'isNew',    label: 'New Arrival',  sub: 'Show NEW badge' },
+              { key: 'inStock',  label: 'In Stock',    sub: 'Show as available' },
+              { key: 'featured', label: 'Featured',    sub: 'Homepage spotlight' },
+              { key: 'isNew',    label: 'New Arrival', sub: 'Show NEW badge' },
             ].map(({ key, label, sub }) => (
               <label key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: 18 }}>
                 <div>
                   <p style={{ fontSize: 13, color: 'rgba(245,245,240,0.7)', fontWeight: 600 }}>{label}</p>
                   <p style={{ fontSize: 10, color: 'rgba(245,245,240,0.25)', marginTop: 2 }}>{sub}</p>
                 </div>
-                <div style={{ width: 42, height: 22, borderRadius: 11, background: form[key as keyof typeof form] ? '#22c55e' : 'rgba(245,245,240,0.08)', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+                <div style={{ width: 42, height: 22, borderRadius: 11, background: form[key as keyof typeof form] ? '#22c55e' : 'rgba(245,245,240,0.08)', position: 'relative', transition: 'background 0.2s', flexShrink: 0, boxShadow: form[key as keyof typeof form] ? '0 0 10px rgba(34,197,94,0.3)' : 'none' }}>
                   <input type="checkbox" name={key} checked={!!form[key as keyof typeof form]} onChange={handle} style={{ opacity: 0, position: 'absolute', width: '100%', height: '100%', cursor: 'pointer', margin: 0 }} />
                   <span style={{ position: 'absolute', top: 3, left: form[key as keyof typeof form] ? 23 : 3, width: 16, height: 16, borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
                 </div>
@@ -287,6 +309,7 @@ export default function AddProductPage() {
             style={{ width: '100%', padding: 14, background: saved ? 'rgba(34,197,94,0.15)' : saving ? '#222' : '#22c55e', color: saved ? '#22c55e' : saving ? 'rgba(245,245,240,0.3)' : '#050505', border: saved ? '1px solid rgba(34,197,94,0.3)' : 'none', fontSize: 12, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'Montserrat', transition: 'all 0.3s' }}>
             {saved ? '✓ Saved!' : saving ? 'Saving...' : 'Save Product'}
           </button>
+
         </div>
       </div>
     </div>

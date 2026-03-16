@@ -187,7 +187,7 @@ export default function ProductPage() {
                 <Link key={p.id} href={`/products/${p.id}`} style={{ textDecoration:'none' }}>
                   <div className="product-card">
                     <div style={{ height:'clamp(140px,20vw,180px)', background:`linear-gradient(135deg, var(--bg4), var(--bg3))`, position:'relative', overflow:'hidden' }}>
-                      <div className="font-display" style={{ position:'absolute', bottom:-5, right:-5, fontSize:90, color:'rgba(242,242,237,0.025)', userSelect:'none', pointerEvents:'none', lineHeight:1 }}>{p.brand[0]}</div>
+                      <div className="font-display" style={{ position:'absolute', bottom:-5, right:-5, fontSize:90, color:'rgba(242,242,237,0.025)', userSelect:'none', pointerEvents:'none', lineHeight:1 }}>{p.brand?.[0] || 'B'}</div>
                       {p.images?.[0] && <img src={p.images[0]} alt={p.name} style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }} onError={e => (e.currentTarget.style.display='none')} />}
                       <div className="img-dark" />
                       <div style={{ position:'absolute', bottom:10, left:10, zIndex:5 }}>

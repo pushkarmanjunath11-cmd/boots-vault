@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { ArrowRight, Star, Shield, Truck, RefreshCcw, BadgeCheck, Instagram, ChevronRight, Zap } from 'lucide-react'
 import { products } from '@/lib/data'
 
-const allProducts = products.slice(0, 6)
+const allProducts = products.filter(p => p && p.name && p.price).slice(0, 6)
 const brands = ['NIKE', 'ADIDAS', 'PUMA', 'NEW BALANCE', 'MIZUNO']
 
 const trust = [
@@ -228,7 +228,7 @@ export default function HomePage() {
                 <div className="glare" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5 }} />
                 <div style={{ height: 'clamp(160px,25vw,260px)', background: 'linear-gradient(135deg, var(--bg4) 0%, var(--bg3) 100%)', position: 'relative', overflow: 'hidden' }}>
                   <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(34,197,94,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-                  <div className="font-display" style={{ position: 'absolute', bottom: -10, right: -10, fontSize: 100, color: 'rgba(242,242,237,0.025)', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>{p.brand[0]}</div>
+                  <div className="font-display" style={{ position: 'absolute', bottom: -10, right: -10, fontSize: 100, color: 'rgba(242,242,237,0.025)', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>{p.brand?.[0] || 'B'}</div>
                   {p.images?.[0] && (
                     <img src={p.images[0]} alt={p.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} onError={e => (e.currentTarget.style.display = 'none')} />
                   )}
