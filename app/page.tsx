@@ -6,7 +6,7 @@ import { ArrowRight, Star, Shield, Truck, RefreshCcw, BadgeCheck, Instagram, Che
 import { products } from '@/lib/data'
 
 const allProducts = products.slice(0, 6)
-const brands = ['NIKE', 'ADIDAS', 'PUMA', 'NEW BALANCE', 'MIZUNO', 'UNDER ARMOUR', 'ASICS', 'UMBRO']
+const brands = ['NIKE', 'ADIDAS', 'PUMA', 'NEW BALANCE', 'MIZUNO']
 
 const trust = [
   { icon: BadgeCheck, title: '100% Authentic', desc: 'Sourced directly from authorised distributors. Zero fakes, zero exceptions.', color: '#22c55e' },
