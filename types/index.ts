@@ -5,7 +5,8 @@ export interface Product {
   price: number
   originalPrice?: number
   images: string[]          // multiple images for PDP gallery
-  category: string          // 'football-boots' | 'futsal' | 'turf'
+  category: string
+  subCategory?: string          // 'football-boots' | 'futsal' | 'turf'
   description: string
   longDescription: string
   sizes: string[]
