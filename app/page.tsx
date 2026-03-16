@@ -9,14 +9,14 @@ const allProducts = products.slice(0, 6)
 const brands = ['NIKE', 'ADIDAS', 'PUMA', 'NEW BALANCE', 'MIZUNO']
 
 const trust = [
-  { icon: BadgeCheck, title: '100% Authentic', desc: 'Sourced directly from authorised distributors. Zero fakes, zero exceptions.', color: '#22c55e' },
+  { icon: BadgeCheck, title: 'Mastercopies', desc: 'Best quality mastercopies, identical to original elites.', color: '#22c55e' },
   { icon: Truck,      title: 'Free Shipping',  desc: 'Free pan India delivery on every order, every time. No minimums.', color: '#60a5fa' },
   { icon: RefreshCcw, title: '7-Day Returns',  desc: "Wrong size? No problem. Easy returns, no questions asked.", color: '#d4af37' },
   { icon: Shield,     title: 'Secure Pay',     desc: 'Stripe-powered 256-bit SSL. Your card never touches our servers.', color: '#c084fc' },
 ]
 
 const reviews = [
-  { name: 'Arjun S.', city: 'Pune',      rating: 5, text: 'Absolutely insane quality. Arrived in 3 days, 100% authentic. Whole team is now ordering from here.', boot: 'Nike Mercurial Vapor 16' },
+  { name: 'Arjun S.', city: 'Pune',      rating: 5, text: 'Absolutely insane quality. Arrived in 3 days, 100% identical texture and quality to orignials. Whole team is now ordering from here.', boot: 'Nike Mercurial Vapor 16' },
   { name: 'Rahul M.', city: 'Mumbai',    rating: 5, text: 'Size guide was spot on. The Predator Elite fits perfectly. Premium packaging too. Will 100% order again.', boot: 'Adidas Predator Elite' },
   { name: 'Karan T.', city: 'Bangalore', rating: 5, text: "Best football boot store in India. Fair prices, fast shipping, swapped my size same day. Unbeatable.", boot: 'Puma Future 7' },
 ]
@@ -159,7 +159,7 @@ export default function HomePage() {
 
           {/* Mini stats — horizontal scroll on mobile */}
           <div style={{ display: 'flex', gap: 'clamp(16px,4vw,32px)', marginTop: 36, opacity: loaded ? 1 : 0, transition: 'opacity 0.9s 1s', overflowX: 'auto', paddingBottom: 4 }}>
-            {[['500+', 'Boots Sold'], ['100%', 'Authentic'], ['4.9★', 'Rating']].map(([n, l]) => (
+            {[['500+', 'Boots Sold'], ['100%', 'Identical texture and quality to originals'], ['4.9★', 'Rating']].map(([n, l]) => (
               <div key={l} style={{ borderLeft: '2px solid rgba(34,197,94,0.3)', paddingLeft: 14, flexShrink: 0 }}>
                 <p className="font-display" style={{ fontSize: 'clamp(22px,4vw,32px)', color: 'var(--white)', lineHeight: 1 }}>{n}</p>
                 <p style={{ fontSize: 9, color: 'rgba(242,242,237,0.3)', marginTop: 4, letterSpacing: '0.15em', textTransform: 'uppercase' }}>{l}</p>
@@ -193,7 +193,7 @@ export default function HomePage() {
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 clamp(20px,4vw,48px)', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
           {[
             { n: 500, suffix: '+', label: 'Boots Sold' },
-            { n: 100, suffix: '%', label: 'Authentic' },
+            { n: 100, suffix: '%', label: 'Identical texture and quality' },
             { n: 48,  suffix: 'h', label: 'Dispatch Time' },
             { n: 7,   suffix: ' day', label: 'Easy Returns' },
           ].map(({ n, suffix, label }, i) => (

@@ -162,7 +162,7 @@ export default function ProductPage() {
             {/* Trust */}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
               {[
-                { icon: Shield,     label:'100% Authentic' },
+                { icon: Shield,     label:'Mastercopies' },
                 { icon: Truck,      label:'Free Shipping' },
                 { icon: RefreshCcw, label:'7-Day Returns' },
               ].map(({ icon: Icon, label }) => (
