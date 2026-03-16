@@ -125,17 +125,17 @@ export default function HomePage() {
 
           {/* Hero title — fixed font size for mobile */}
           <div style={{ overflow: 'hidden', marginBottom: 4 }}>
-            <h1 className="font-display" style={{ fontSize: 'clamp(48px, 12vw, 148px)', lineHeight: 0.88, color: 'var(--white)', opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.3s', display: 'block' }}>
+            <h1 className="font-display" style={{ fontSize: 'clamp(36px, 9vw, 148px)', lineHeight: 0.88, color: 'var(--white)', opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.3s', display: 'block' }}>
               DOMINATE
             </h1>
           </div>
           <div style={{ overflow: 'hidden', marginBottom: 4 }}>
-            <h1 className="font-display text-gradient" style={{ fontSize: 'clamp(48px, 12vw, 148px)', lineHeight: 0.88, opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.45s', display: 'block' }}>
+            <h1 className="font-display text-gradient" style={{ fontSize: 'clamp(36px, 9vw, 148px)', lineHeight: 0.88, opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.45s', display: 'block' }}>
               EVERY
             </h1>
           </div>
           <div style={{ overflow: 'hidden', marginBottom: 24 }}>
-            <h1 className="font-display" style={{ fontSize: 'clamp(48px, 12vw, 148px)', lineHeight: 0.88, color: 'var(--white)', opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.6s', display: 'block' }}>
+            <h1 className="font-display" style={{ fontSize: 'clamp(36px, 9vw, 148px)', lineHeight: 0.88, color: 'var(--white)', opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.6s', display: 'block' }}>
               GAME
             </h1>
           </div>
