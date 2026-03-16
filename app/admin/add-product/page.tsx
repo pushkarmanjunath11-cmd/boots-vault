@@ -5,7 +5,7 @@ import { addProduct } from '@/lib/productService'
 import { Plus, Trash2, Check, Upload } from 'lucide-react'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
-const sizes = ['6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11']
+const sizes = ['3','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
 const brands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'Mizuno', 'Under Armour']
 const categories = [
   { id: 'boots',           label: 'Boots' },

@@ -8,7 +8,7 @@ import { subscribeProducts } from '@/lib/productService'
 import { products as staticProducts } from '@/lib/data'
 import { Product } from '@/types'
 
-const sizes = ['6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
+const sizes = ['3','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
 const brands = ['Nike','Adidas','Puma','New Balance','Mizuno']
 const sorts = ['Featured','Price: Low to High','Price: High to Low','Newest','Top Rated']
 
@@ -123,26 +123,14 @@ function ShopContent() {
 
         {/* Filter panel */}
         {filtersOpen && (
-          <div style={{ background:'var(--bg2)', border:'1px solid var(--border)', padding:'24px clamp(16px,3vw,32px)', marginBottom:24, display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(240px, 1fr))', gap:24 }}>
-            <div>
-              <p style={{ fontSize:10, fontWeight:700, letterSpacing:'0.3em', textTransform:'uppercase', color:'var(--green)', marginBottom:16 }}>Brand</p>
-              <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
-                {brands.map(b => (
-                  <button key={b} onClick={() => toggleBrand(b)} style={{ padding:'6px 14px', fontSize:11, fontWeight:700, background: selectedBrands.includes(b) ? 'var(--green)' : 'var(--bg3)', color: selectedBrands.includes(b) ? '#050505' : 'rgba(242,242,237,0.5)', border:`1px solid ${selectedBrands.includes(b) ? 'var(--green)' : 'var(--border)'}`, cursor:'pointer', transition:'all 0.2s', fontFamily:'Montserrat' }}>
-                    {b}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p style={{ fontSize:10, fontWeight:700, letterSpacing:'0.3em', textTransform:'uppercase', color:'var(--green)', marginBottom:16 }}>Size (UK)</p>
-              <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
-                {sizes.map(s => (
-                  <button key={s} onClick={() => toggleSize(s)} style={{ width:46, height:40, fontSize:11, fontWeight:700, background: selectedSizes.includes(s) ? 'var(--green)' : 'var(--bg3)', color: selectedSizes.includes(s) ? '#050505' : 'rgba(242,242,237,0.4)', border:`1px solid ${selectedSizes.includes(s) ? 'var(--green)' : 'var(--border)'}`, cursor:'pointer', transition:'all 0.2s', fontFamily:'Montserrat' }}>
-                    {s}
-                  </button>
-                ))}
-              </div>
+          <div style={{ background:'var(--bg2)', border:'1px solid var(--border)', padding:'24px 20px', marginBottom:20 }}>
+            <p style={{ fontSize:10, fontWeight:700, letterSpacing:'0.3em', textTransform:'uppercase', color:'var(--green)', marginBottom:14 }}>Brand</p>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+              {brands.map(b => (
+                <button key={b} onClick={() => toggleBrand(b)} style={{ padding:'6px 12px', fontSize:11, fontWeight:700, background: selectedBrands.includes(b) ? 'var(--green)' : 'var(--bg3)', color: selectedBrands.includes(b) ? '#050505' : 'rgba(242,242,237,0.5)', border:`1px solid ${selectedBrands.includes(b) ? 'var(--green)' : 'var(--border)'}`, cursor:'pointer', transition:'all 0.2s', fontFamily:'Montserrat' }}>
+                  {b}
+                </button>
+              ))}
             </div>
           </div>
         )}
