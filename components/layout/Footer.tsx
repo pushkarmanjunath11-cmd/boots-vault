@@ -3,11 +3,11 @@ import Link from 'next/link'
 export function Footer() {
   return (
     <footer style={{ background:'var(--bg2)', borderTop:'1px solid var(--border)', fontFamily:'Montserrat,sans-serif' }}>
-      <div style={{ borderBottom:'1px solid var(--border)', padding:'48px 48px 40px' }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', gap:48 }}>
+      <div style={{ borderBottom:'1px solid var(--border)', padding:'clamp(32px,5vw,48px) clamp(20px,4vw,48px) clamp(28px,4vw,40px)' }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', gap:'clamp(24px,4vw,48px)' }} className="footer-grid">
 
           <div>
-            <span className="font-display" style={{ fontSize:24, color:'var(--white)', letterSpacing:'0.08em', display:'block', marginBottom:14 }}>
+            <span className="font-display" style={{ fontSize:22, color:'var(--white)', letterSpacing:'0.08em', display:'block', marginBottom:14 }}>
               BOOTS <span style={{ color:'var(--green)' }}>VAULT</span>
             </span>
             <p style={{ fontSize:13, color:'rgba(242,242,237,0.3)', lineHeight:1.8, maxWidth:240 }}>
@@ -66,7 +66,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div style={{ padding:'20px 48px', maxWidth:1200, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12 }}>
+      <div style={{ padding:'20px clamp(20px,4vw,48px)', maxWidth:1200, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12 }}>
         <p style={{ fontSize:11, color:'rgba(242,242,237,0.18)' }}>© 2025 Boots Vault. All rights reserved.</p>
         <div style={{ display:'flex', gap:20 }}>
           {[
