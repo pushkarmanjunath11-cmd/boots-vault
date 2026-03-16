@@ -168,7 +168,7 @@ export default function AdminProducts() {
                           {p.originalPrice && <span style={{ fontSize: 13, color: 'rgba(245,245,240,0.25)', textDecoration: 'line-through' }}>₹{p.originalPrice.toLocaleString()}</span>}
                         </div>
                         <p style={{ fontSize: 10, color: 'rgba(245,245,240,0.2)', marginTop: 6 }}>
-                          Sizes: {p.sizes?.join(', ')} · {p.images?.length ?? 0} image{p.images?.length !== 1 ? 's' : ''}
+                          Sizes: {Array.isArray(p.sizes) ? p.sizes.join(', ') : p.sizes || '—'} · {p.images?.length ?? 0} image{p.images?.length !== 1 ? 's' : ''}
                         </p>
                       </>
                     )}

@@ -141,7 +141,7 @@ export default function ProductPage() {
                 <span style={{ fontSize:10, color:'var(--green)', fontWeight:600, cursor:'pointer', textDecoration:'underline' }}>Size Guide</span>
               </div>
               <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
-                {product.sizes.map(s => (
+                {(Array.isArray(product.sizes) ? product.sizes : []).map(s => (
                   <button key={s} onClick={() => setSelectedSize(s)} style={{ width:52, height:44, fontSize:12, fontWeight:700, background: selectedSize===s ? 'var(--green)' : 'var(--bg3)', color: selectedSize===s ? '#050505' : 'rgba(242,242,237,0.45)', border:`1px solid ${selectedSize===s ? 'var(--green)' : sizeError ? 'rgba(248,113,113,0.3)' : 'var(--border)'}`, cursor:'pointer', transition:'all 0.2s', fontFamily:'Montserrat' }}>
                     {s}
                   </button>
