@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { addProduct } from '@/lib/productService'
+import { addProduct, updateProduct, subscribeProducts } from '@/lib/productService'
+import { useParams, useRouter } from 'next/navigation'
 import { Plus, Trash2, Check, Upload } from 'lucide-react'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
@@ -46,16 +47,45 @@ const section = (color: string) => ({
 })
 
 export default function AddProductPage() {
+  const params = useParams()
+  const router = useRouter()
+
+  const editId = Array.isArray(params?.id) ? params.id[0] : params?.id
+  const isEdit = !!editId
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [images, setImages] = useState<string[]>(['', '', ''])
   const [uploadingIdxs, setUploadingIdxs] = useState<number[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [form, setForm] = useState({
-    name: '', brand: brands[0], category: 'boots', subCategory: 'trainers',
-    price: '', originalPrice: '', description: '', longDescription: '',
-    inStock: true, featured: false, isNew: false,
+    name: '', 
+    brand: brands[0], 
+    category: 'boots', 
+    subCategory: 'trainers',
+    price: '', 
+    originalPrice: '', 
+    description: '', 
+    longDescription: '',
+    inStock: true, 
+    featured: false, 
+    isNew: false,
   })
+
+  useEffect(() => {
+    if (!isEdit) return
+
+    const unsub = subscribeProducts((data: any[]) => {
+      const product = data.find(p => String(p.id) === String(editId))
+
+      if (product) {
+        setForm(product)
+        setImages(product.images || ['', '', ''])
+        setSelectedSizes(Array.isArray(product.sizes) ? product.sizes : [])
+      }
+    })
+
+    return () => unsub()
+  }, [editId])
 
   const handle = (e: any) => {
     const { name, value, type, checked } = e.target
@@ -110,14 +140,21 @@ export default function AddProductPage() {
 
   const save = async () => {
     if (!form.name || !form.price || selectedSizes.length === 0) {
-      alert('Please fill in name, price, and select at least one size.')
-      return
+      if (!form.name || !form.price) {
+        alert('Please fill in name and price.')
+        return
+      }
+
+      if (!isEdit && selectedSizes.length === 0) {
+        alert('Please select at least one size.')
+        return
+      }
     }
 
     setSaving(true)
 
     try {
-      await addProduct({
+      const payload = {
         name: form.name,
         brand: form.brand,
         category: form.category,
@@ -135,32 +172,40 @@ export default function AddProductPage() {
         rating: 4.5,
         reviewCount: 0,
         tags: [form.brand.toLowerCase(), form.category],
-      })
+      }
+
+      if (isEdit) {
+        await updateProduct(editId, payload)
+      } else {
+        await addProduct(payload)
+      }
 
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
 
-      // reset form
-      setForm({
-        name: '',
-        brand: brands[0],
-        category: 'boots',
-        subCategory: 'trainers',
-        price: '',
-        originalPrice: '',
-        description: '',
-        longDescription: '',
-        inStock: true,
-        featured: false,
-        isNew: false,
-      })
-
-      setImages(['', '', ''])
-      setSelectedSizes([])
+      if (isEdit) {
+        router.push('/admin/products')
+      } else {
+        setForm({
+          name: '',
+          brand: brands[0],
+          category: 'boots',
+          subCategory: 'trainers',
+          price: '',
+          originalPrice: '',
+          description: '',
+          longDescription: '',
+          inStock: true,
+          featured: false,
+          isNew: false,
+        })
+        setImages(['', '', ''])
+        setSelectedSizes([])
+      }
 
     } catch (e) {
       console.error(e)
-      alert('Failed to save product.')
+      alert('Failed to update product.')
     }
 
     setSaving(false)
@@ -172,12 +217,12 @@ export default function AddProductPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
         <div>
-          <h1 className="font-display" style={{ fontSize: 36, color: '#f5f5f0', letterSpacing: '0.05em' }}>ADD PRODUCT</h1>
-          <p style={{ fontSize: 12, color: 'rgba(245,245,240,0.3)', marginTop: 4 }}>Add a new product to Boots Vault</p>
+          <h1 className="font-display" style={{ fontSize: 36, color: '#f5f5f0', letterSpacing: '0.05em' }}>UPDATE PRODUCT</h1>
+          <p style={{ fontSize: 12, color: 'rgba(245,245,240,0.3)', marginTop: 4 }}>Update a current product in Boots Vault</p>
         </div>
         <button onClick={save} disabled={saving}
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 24px', background: saved ? 'rgba(34,197,94,0.15)' : saving ? '#222' : '#22c55e', color: saved ? '#22c55e' : saving ? 'rgba(245,245,240,0.3)' : '#050505', border: saved ? '1px solid rgba(34,197,94,0.3)' : 'none', fontSize: 12, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'Montserrat', transition: 'all 0.3s' }}>
-          {saved ? <><Check size={14} /> Saved!</> : saving ? 'Saving...' : 'Save Product'}
+          {saved ? <><Check size={14} /> Updated!</> : saving ? 'Updatinging...' : 'Update Product'}
         </button>
       </div>
 
@@ -386,7 +431,7 @@ export default function AddProductPage() {
 
           <button onClick={save} disabled={saving}
             style={{ width: '100%', padding: 14, background: saved ? 'rgba(34,197,94,0.15)' : saving ? '#222' : '#22c55e', color: saved ? '#22c55e' : saving ? 'rgba(245,245,240,0.3)' : '#050505', border: saved ? '1px solid rgba(34,197,94,0.3)' : 'none', fontSize: 12, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'Montserrat', transition: 'all 0.3s' }}>
-            {saved ? '✓ Saved!' : saving ? 'Saving...' : 'Save Product'}
+            {saved ? '✓ Updateded!' : saving ? 'Updating...' : 'Update Product'}
           </button>
 
         </div>

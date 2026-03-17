@@ -5,6 +5,7 @@ import { subscribeProducts, deleteProduct, updateProduct } from '@/lib/productSe
 import { Product } from '@/types'
 import Link from 'next/link'
 import { Trash2, Edit3, ChevronLeft, ChevronRight, Plus, Check, X, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const catLabel: Record<string, string> = {
   'football-boots': 'FG/AG',
@@ -25,6 +26,7 @@ export default function AdminProducts() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<Partial<Product>>({})
   const [saving, setSaving] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const unsub = subscribeProducts(data => { setProducts(data); setLoading(false) })
@@ -34,7 +36,9 @@ export default function AdminProducts() {
   const prevImg = (id: string, total: number) => setImgIndex(p => ({ ...p, [id]: ((p[id] ?? 0) - 1 + total) % total }))
   const nextImg = (id: string, total: number) => setImgIndex(p => ({ ...p, [id]: ((p[id] ?? 0) + 1) % total }))
 
-  const startEdit = (p: Product) => { setEditingId(p.id); setEditForm({ name: p.name, price: p.price, originalPrice: p.originalPrice, inStock: p.inStock, featured: p.featured, isNew: p.isNew }) }
+  const startEdit = (p: Product) => {
+    router.push(`/admin/edit-product/${p.id}`)
+  }
   const cancelEdit = () => { setEditingId(null); setEditForm({}) }
 
   const saveEdit = async (id: string) => {

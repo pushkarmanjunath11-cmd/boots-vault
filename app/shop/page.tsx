@@ -9,6 +9,7 @@ import { products as staticProducts } from '@/lib/data'
 import { Product } from '@/types'
 
 const sizes = ['3','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
+const apparelSizes = ['XS','S','M','L','XL']
 const brands = ['Nike','Adidas','Puma','New Balance','Mizuno']
 const sorts = ['Featured','Price: Low to High','Price: High to Low','Newest','Top Rated']
 
@@ -24,6 +25,16 @@ const cats = [
 const bootTypes = [
   { id:'all-boots', label:'All Boots' },
   { id:'trainers',  label:'Trainers' },
+  { id: 'FG', label: 'Firm Ground (FG)' },
+  { id: 'SG', label: 'Soft Ground (SG)' },
+  { id: 'AG', label: 'Artificial Ground (AG)'},
+  { id: 'TF', label: 'Turf (TF)'},
+]
+
+const jerseyjackets = [
+  { id: 'all-jersey-jackets', label: 'All Jerseys & Jackets' },
+  { id: 'jerseys',  label: 'Jerseys' },
+  { id: 'jackets', label: 'Jackets' },
 ]
 
 function ShopContent() {
@@ -31,6 +42,7 @@ function ShopContent() {
   const [products, setProducts] = useState<Product[]>(staticProducts)
   const [category, setCategory] = useState(params.get('category') || 'all')
   const [bootType, setBootType] = useState('all-boots')
+  const [apparelType, setApparelType] = useState('all-jersey-jackets')
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [sort, setSort] = useState('Featured')
@@ -43,6 +55,7 @@ function ShopContent() {
 
   useEffect(() => {
     if (category !== 'boots') setBootType('all-boots')
+    if (category !== 'jerseys-jackets') setApparelType('all-jersey-jackets')
   }, [category])
 
   const toggleBrand = (b: string) => setSelectedBrands(p => p.includes(b) ? p.filter(x => x !== b) : [...p, b])
@@ -52,10 +65,32 @@ function ShopContent() {
   const currentCatLabel = cats.find(c => c.id === category)?.label || 'Products'
 
   let filtered = products.filter(p => {
+    // ✅ CATEGORY
     if (category !== 'all' && p.category !== category) return false
-    if (category === 'boots' && bootType === 'trainers' && (p as any).subCategory !== 'trainers') return false
+
+    // ✅ BOOTS FILTER
+    if (category === 'boots') {
+      if (bootType === 'trainers' && (p as any).subCategory !== 'trainers') return false
+      if (bootType === 'FG' && (p as any).subCategory !== 'FG') return false
+      if (bootType === 'SG' && (p as any).subCategory !== 'SG') return false
+      if (bootType === 'AG' && (p as any).subCategory !== 'AG') return false
+      if (bootType === 'TF' && (p as any).subCategory !== 'TF') return false
+      // 👉 if bootType = 'all-boots' → nothing runs → all boots show ✅
+    }
+
+    // ✅ JERSEYS & JACKETS FILTER
+    if (category === 'jerseys-jackets') {
+      if (apparelType === 'jerseys' && (p as any).subCategory !== 'jerseys') return false
+      if (apparelType === 'jackets' && (p as any).subCategory !== 'jackets') return false
+      // 👉 if all → nothing runs → all show ✅
+    }
+
+    // ✅ BRAND FILTER
     if (selectedBrands.length && !selectedBrands.includes(p.brand)) return false
+
+    // ✅ SIZE FILTER
     if (selectedSizes.length && !selectedSizes.some(s => p.sizes.includes(s))) return false
+
     return true
   })
 
@@ -89,6 +124,34 @@ function ShopContent() {
             <div style={{ display:'flex', gap:0, borderTop:'1px solid rgba(242,242,237,0.05)', marginTop:2 }}>
               {bootTypes.map(t => (
                 <button key={t.id} onClick={() => setBootType(t.id)} style={{ padding:'10px 20px', fontSize:10, fontWeight:700, letterSpacing:'0.15em', textTransform:'uppercase', background:'transparent', color: bootType===t.id ? 'var(--green)' : 'rgba(242,242,237,0.22)', border:'none', borderBottom: bootType===t.id ? '2px solid rgba(34,197,94,0.5)' : '2px solid transparent', cursor:'pointer', transition:'all 0.2s', fontFamily:'Montserrat' }}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/*Jersey and Jackets sub-filter */}
+          {category === 'jerseys-jackets' && (
+            <div style={{ display:'flex', gap:0, borderTop:'1px solid rgba(242,242,237,0.05)', marginTop:2 }}>
+              {jerseyjackets.map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setApparelType(t.id)}
+                  style={{
+                    padding:'10px 20px',
+                    fontSize:10,
+                    fontWeight:700,
+                    letterSpacing:'0.15em',
+                    textTransform:'uppercase',
+                    background:'transparent',
+                    color: apparelType===t.id ? 'var(--green)' : 'rgba(242,242,237,0.22)',
+                    border:'none',
+                    borderBottom: apparelType===t.id ? '2px solid rgba(34,197,94,0.5)' : '2px solid transparent',
+                    cursor:'pointer',
+                    transition:'all 0.2s',
+                    fontFamily:'Montserrat'
+                  }}
+                >
                   {t.label}
                 </button>
               ))}
@@ -137,12 +200,22 @@ function ShopContent() {
 
         {/* Grid */}
         {filtered.length === 0 ? (
-          <div style={{ textAlign:'center', padding:'80px 0' }}>
-            <p className="font-display" style={{ fontSize:36, color:'rgba(242,242,237,0.08)', marginBottom:12 }}>
-              NO {bootType === 'trainers' ? 'TRAINERS' : currentCatLabel.toUpperCase()} FOUND
-            </p>
-            <p style={{ fontSize:13, color:'rgba(242,242,237,0.3)' }}>Try adjusting your filters</p>
-          </div>
+          <p style={{ opacity: 0.6, textAlign: 'center', marginTop: 40 }}>
+            {(() => {
+              if (category === 'boots') {
+                if (bootType === 'trainers') return "NO TRAINERS FOUND";
+                if (bootType === 'FG') return "NO FG BOOTS FOUND";
+                if (bootType === 'SG') return "NO SG BOOTS FOUND";
+                if (bootType === 'AG') return "NO AG BOOTS FOUND";
+                if (bootType === 'TF') return "NO TF BOOTS FOUND";
+              }
+              if (category === 'jerseys-jackets') {
+                if (apparelType === 'jerseys') return "NO JERSEYS FOUND";
+                if (apparelType === 'jackets') return "NO JACKETS FOUND";
+              }
+              return "NO PRODUCTS FOUND";
+            })()}
+          </p>
         ) : (
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(min(280px, calc(50% - 8px)), 1fr))', gap:'clamp(8px,2vw,14px)' }}>
             {filtered.map((p, idx) => (
