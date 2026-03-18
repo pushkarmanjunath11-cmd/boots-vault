@@ -96,7 +96,6 @@ function ShopContent() {
 
   if (sort === 'Price: Low to High')  filtered = [...filtered].sort((a,b) => a.price - b.price)
   if (sort === 'Price: High to Low')  filtered = [...filtered].sort((a,b) => b.price - a.price)
-  if (sort === 'Top Rated')           filtered = [...filtered].sort((a,b) => b.rating - a.rating)
   if (sort === 'Newest')              filtered = [...filtered].sort((a,b) => (b.createdAt??'').localeCompare(a.createdAt??''))
 
   return (
@@ -238,10 +237,6 @@ function ShopContent() {
                   </div>
                   <div style={{ padding:'clamp(12px,2vw,18px)' }}>
                     <p style={{ fontSize:'clamp(12px,1.5vw,14px)', fontWeight:700, color:'var(--white)', marginBottom:4, lineHeight:1.3 }}>{p.name}</p>
-                    <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:10 }}>
-                      {[...Array(5)].map((_, i) => <Star key={i} size={9} fill={i < Math.floor(p.rating) ? '#d4af37' : 'none'} color={i < Math.floor(p.rating) ? '#d4af37' : 'rgba(242,242,237,0.1)'} />)}
-                      <span style={{ fontSize:9, color:'rgba(242,242,237,0.25)' }}>({p.reviewCount})</span>
-                    </div>
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                       <div>
                         <span className="font-display" style={{ fontSize:'clamp(20px,3vw,24px)', color:'var(--white)', lineHeight:1 }}>₹{p.price.toLocaleString()}</span>
