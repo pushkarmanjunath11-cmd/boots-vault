@@ -9,6 +9,22 @@ import { products as staticProducts } from '@/lib/data'
 import { useCartStore } from '@/lib/store'
 import { Product } from '@/types'
 
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const product = staticProducts.find(p => p.id === params.id)
+
+  if (!product) {
+    return {
+      title: 'Product Not Found | Boots Vault',
+      description: 'This product does not exist',
+    }
+  }
+
+  return {
+    title: `${product.name} | Boots Vault`,
+    description: product.description,
+  }
+}
+
 export default function ProductPage() {
   const { id } = useParams()
   const { addItem, openCart } = useCartStore()
