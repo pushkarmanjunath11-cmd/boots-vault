@@ -2,20 +2,39 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { ClientLayout } from '@/components/layout/ClientLayout'
 
-export const metadata: Metadata = {
-  title: 'Boots Vault — Premium Football Boots',
-  description: 'The finest football boots. Nike, Adidas, Puma and more. Delivered across India.',
-  metadataBase: new URL('https://bootsvault.vercel.app'),
-  openGraph: {
-    title: 'Boots Vault — Premium Football Boots',
-    description: 'The finest football boots. Nike, Adidas, Puma and more.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+export const metadata = {
+  metadataBase: new URL("https://boots-vault.vercel.app"),
+
+  title: {
+    default: "Boots Vault - Buy Premium Football Boots in India",
+    template: "%s | Boots Vault",
   },
-  icons: { icon: '/favicon.ico' },
+
+  description:
+    "Shop premium football boots from Nike, Adidas, Puma in India. Best prices, fast delivery, 100% authentic.",
+
+  keywords: [
+    "football boots India",
+    "buy football shoes India",
+    "Nike football boots",
+    "Adidas football shoes",
+    "Puma football boots",
+    "cheap football boots India",
+  ],
 
   verification: {
-    google: "ndhuOvgOKm4J0UBViMhWhKvibkLoYf2AcF8-j3ICedc",
+    google: "YOUR_CODE_HERE",
   },
+
+  openGraph: {
+    title: "Boots Vault",
+    description: "Premium football boots in India",
+    url: "https://boots-vault.vercel.app",
+    siteName: "Boots Vault",
+    type: "website",
+  },
+  
+  icons: { icon: '/favicon.ico' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
