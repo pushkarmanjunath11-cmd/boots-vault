@@ -12,6 +12,10 @@ export const metadata: Metadata = {
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   icons: { icon: '/favicon.ico' },
+
+  verification: {
+    google: "ndhuOvgOKm4J0UBViMhWhKvibkLoYf2AcF8-j3ICedc",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
