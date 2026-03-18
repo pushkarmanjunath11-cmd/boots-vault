@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   }
 
   return {
-    title: `${product.name} | Boots Vault`,
+    title: `${product.name} - Buy Online in India`,
     description: product.description,
   }
 }
