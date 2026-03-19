@@ -349,7 +349,7 @@ export default function AddProductPage() {
           <div style={section('#60a5fa')}>
             <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#f5f5f0', marginBottom: 16 }}>{form.category === 'boots' ? 'Available Sizes (UK)' : 'Available Sizes'}</h2>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {(form.category === 'balls' ? ballSizes : form.category === 'gloves' ? gloveSizes : bootSizes).map(s => (
+              {(form.category === 'balls' ? ballSizes : form.category === 'gloves' ? gloveSizes : form.category === 'jerseys-jackets' ? apparelSizes : bootSizes).map(s => (
                 <button key={s} onClick={() => toggleSize(s)}
                   style={{
                     width: 52, 
