@@ -5,7 +5,9 @@ import { useEffect, useState } from 'react'
 import { ArrowRight, Star, Shield, Truck, RefreshCcw, BadgeCheck, Instagram, ChevronRight, Zap } from 'lucide-react'
 import { products } from '@/lib/data'
 
-const allProducts = products.filter(p => p && p.name && p.price).slice(0, 6)
+const allProducts = products.filter(p => p && p.name && p.price > 0)
+const featuredProducts = allProducts.filter(p => p.featured).slice(0, 6)
+const displayProducts = featuredProducts.length > 0 ? featuredProducts : allProducts.slice(0, 6)
 const brands = ['NIKE', 'ADIDAS', 'PUMA', 'NEW BALANCE', 'MIZUNO']
 
 const trust = [
@@ -222,7 +224,7 @@ export default function HomePage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, calc(50% - 8px)), 1fr))', gap: 'clamp(8px,2vw,16px)' }}>
-          {allProducts.map((p, idx) => (
+          {displayProducts.map((p, idx) => (
             <Link key={p.id} href={`/products/${p.id}`} style={{ textDecoration: 'none' }}>
               <div className="product-card tilt-card reveal" style={{ transitionDelay: `${idx * 0.06}s` }}>
                 <div className="glare" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5 }} />

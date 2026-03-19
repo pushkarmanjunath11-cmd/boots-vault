@@ -10,10 +10,10 @@ import { products as staticProducts } from '@/lib/data'
 import { useCartStore } from '@/lib/store'
 import { Product } from '@/types'
 
-export default function ClientProduct({ product }: { product: Product }) {
+export default function ProductPage({ product }: { product: Product }) {
   const { id } = useParams()
   const { addItem, openCart } = useCartStore()
-  const [products, setProducts] = useState<Product[]>(staticProducts)
+  const [products, setProducts] = useState<Product[]>([])
   const [selectedSize, setSelectedSize] = useState('')
   const [imgIdx, setImgIdx] = useState(0)
   const [added, setAdded] = useState(false)
@@ -21,7 +21,13 @@ export default function ClientProduct({ product }: { product: Product }) {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    const unsub = subscribeProducts(data => { if (data.length > 0) setProducts(data) })
+    const unsub = subscribeProducts(data => {
+      const merged = [...data]
+      staticProducts.forEach(sp => {
+        if (!merged.find(p => p.id === sp.id)) merged.push(sp)
+      })
+      setProducts(merged)
+    })
     setTimeout(() => setLoaded(true), 60)
     return () => unsub()
   }, [])
@@ -137,7 +143,7 @@ export default function ClientProduct({ product }: { product: Product }) {
                 <p style={{ fontSize:11, fontWeight:700, letterSpacing:'0.2em', textTransform:'uppercase', color: sizeError ? '#f87171' : selectedSize ? 'var(--white)' : 'rgba(242,242,237,0.5)' }}>
                   {sizeError ? '⚠ Please select a size' : selectedSize ? `UK ${selectedSize} Selected` : 'Select UK Size'}
                 </p>
-                <span style={{ fontSize:10, color:'var(--green)', fontWeight:600, cursor:'pointer', textDecoration:'underline' }}>Size Guide</span>
+                <Link href="/size-guide" style={{ fontSize:10, color:'var(--green)', fontWeight:600, textDecoration:'underline' }}>Size Guide</Link>
               </div>
               <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
                 {(Array.isArray(product.sizes) ? [...product.sizes].sort((a, b) => parseFloat(a) - parseFloat(b)) : []).map(s => (
