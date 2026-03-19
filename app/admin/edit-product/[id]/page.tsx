@@ -8,7 +8,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 const bootSizes = ['3','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
 const ballSizes = ['5']
-const gloveSizes = ['3','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
+const gloveSizes = ['7','8','9','10']
 const apparelSizes = ['XS','S','M','L','XL']
 const brands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'Mizuno']
 const categories = [
