@@ -238,6 +238,14 @@ export default function AccountPage() {
                           <p style={{ color: 'rgba(245,245,240,0.6)', lineHeight: 1.8 }}>{order.address}</p>
                         </div>
 
+                        {/* Tracking */}
+                        {(order as any).awbId && (
+                          <a href={(order as any).trackingUrl} target="_blank" rel="noopener noreferrer"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '10px 16px', background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)', color: '#60a5fa', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none', fontFamily: 'Montserrat' }}>
+                            Track Package → AWB: {(order as any).awbId}
+                          </a>
+                        )}
+
                         {/* Reorder button */}
                         {!isCancelled && (
                           <button onClick={() => handleReorder(order)}
@@ -245,7 +253,7 @@ export default function AccountPage() {
                             onMouseEnter={e => { (e.currentTarget).style.background = 'rgba(34,197,94,0.15)' }}
                             onMouseLeave={e => { (e.currentTarget).style.background = 'rgba(34,197,94,0.08)' }}>
                             <RotateCcw size={12} /> Reorder
-                          </button>
+                         </button>
                         )}
                       </div>
                     )}

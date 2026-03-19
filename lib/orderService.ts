@@ -30,6 +30,8 @@ export interface Order {
   itemCount: number
   paymentId?: string
   paymentStatus?: 'paid' | 'pending' | 'failed'
+  awbId?: string
+  trackingUrl?: string
   createdAt?: Timestamp
 }
 
@@ -64,6 +66,8 @@ export async function placeOrder(data: {
   customer: string; email: string; phone: string
   city: string; address: string; pincode: string
   items: CartItem[]; total: number; itemCount: number
+  awbId?: string
+  trackingUrl?: string
   paymentId?: string; paymentStatus?: string
   userId?: string
 }): Promise<string> {
@@ -101,4 +105,9 @@ export function subscribeOrdersByUser(userId: string, callback: (orders: Order[]
       .filter(o => (o as any).userId === userId)
     callback(orders)
   }, err => { console.error(err); callback([]) })
+}
+
+export async function updateOrderAWB(id: string, awbId: string) {
+  const trackingUrl = `https://www.delhivery.com/track/package/${awbId}`
+  await updateDoc(doc(db, COL, id), { awbId, trackingUrl, status: 'shipped' as OrderStatus })
 }

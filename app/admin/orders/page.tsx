@@ -1,9 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { subscribeOrders, updateOrderStatus, deleteOrder, Order, OrderStatus } from '@/lib/orderService'
 import { Search, ChevronDown, ChevronUp, Trash2, Loader2 } from 'lucide-react'
-import Image from 'next/image'
+import { subscribeOrders, updateOrderStatus, updateOrderAWB, deleteOrder, Order, OrderStatus } from '@/lib/orderService'
 
 const statusColors: Record<string, { bg: string; color: string; border: string }> = {
   pending:    { bg: 'rgba(234,179,8,0.08)',   color: '#eab308', border: 'rgba(234,179,8,0.2)' },
@@ -13,7 +12,7 @@ const statusColors: Record<string, { bg: string; color: string; border: string }
   cancelled:  { bg: 'rgba(248,113,113,0.08)', color: '#f87171', border: 'rgba(248,113,113,0.2)' },
 }
 
-const tabs: { key: string; label: string }[] = [
+const tabs = [
   { key: 'all', label: 'All' },
   { key: 'pending', label: 'Pending' },
   { key: 'processing', label: 'Processing' },
@@ -31,6 +30,8 @@ export default function AdminOrders() {
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [updating, setUpdating] = useState<string | null>(null)
+  const [awbInput, setAwbInput] = useState<Record<string, string>>({})
+  const [savingAwb, setSavingAwb] = useState<string | null>(null)
 
   useEffect(() => {
     const unsub = subscribeOrders(data => { setOrders(data); setLoading(false) })
@@ -58,10 +59,19 @@ export default function AdminOrders() {
     if (expanded === id) setExpanded(null)
   }
 
+  const handleSaveAwb = async (orderId: string) => {
+    const val = awbInput[orderId]?.trim()
+    if (!val) return
+    setSavingAwb(orderId)
+    await updateOrderAWB(orderId, val)
+    setSavingAwb(null)
+  }
+
   const revenue = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0)
 
   return (
     <div style={{ color: '#f5f5f0', fontFamily: 'Montserrat, sans-serif' }}>
+
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
         <div>
@@ -75,7 +85,7 @@ export default function AdminOrders() {
       </div>
 
       {/* Tabs + Search */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, gap: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, gap: 16, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {tabs.map(t => {
             const count = t.key === 'all' ? orders.length : orders.filter(o => o.status === t.key).length
@@ -90,15 +100,15 @@ export default function AdminOrders() {
         </div>
         <div style={{ position: 'relative' }}>
           <Search size={14} color="rgba(245,245,240,0.3)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name, email, city..." style={{ background: '#0d0d0d', border: '1px solid rgba(245,245,240,0.07)', padding: '9px 16px 9px 36px', fontSize: 12, color: '#f5f5f0', outline: 'none', width: 240, fontFamily: 'Montserrat' }} />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name, email, city..."
+            style={{ background: '#0d0d0d', border: '1px solid rgba(245,245,240,0.07)', padding: '9px 16px 9px 36px', fontSize: 12, color: '#f5f5f0', outline: 'none', width: 240, fontFamily: 'Montserrat' }} />
         </div>
       </div>
 
       {/* Table */}
       <div style={{ background: '#0d0d0d', border: '1px solid rgba(245,245,240,0.05)' }}>
-        {/* Table header */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 100px 140px 36px 36px', gap: 12, padding: '10px 20px', borderBottom: '1px solid rgba(245,245,240,0.05)' }}>
-          {['Customer', 'Date', 'Total', 'Status', '', ''].map((h, i) => (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 100px 140px auto 36px 36px', gap: 12, padding: '10px 20px', borderBottom: '1px solid rgba(245,245,240,0.05)' }}>
+          {['Customer', 'Date', 'Total', 'Status', '', '', ''].map((h, i) => (
             <span key={i} style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(245,245,240,0.2)', fontWeight: 700 }}>{h}</span>
           ))}
         </div>
@@ -117,25 +127,22 @@ export default function AdminOrders() {
 
           return (
             <div key={order.id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid rgba(245,245,240,0.04)' : 'none' }}>
+
               {/* Row */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 100px 140px auto 36px 36px', gap: 12, padding: '14px 20px', alignItems: 'center', transition: 'background 0.2s' }}
                 onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,245,240,0.015)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
 
-                {/* Customer */}
                 <div>
                   <p style={{ fontSize: 14, fontWeight: 700, color: '#f5f5f0', marginBottom: 2 }}>{order.customer}</p>
                   <p style={{ fontSize: 10, color: 'rgba(245,245,240,0.25)', fontFamily: 'Space Mono' }}>{order.id.slice(0, 14)}…</p>
                   <p style={{ fontSize: 10, color: 'rgba(245,245,240,0.2)', marginTop: 2 }}>{order.city} · {order.itemCount} pair{order.itemCount !== 1 ? 's' : ''}</p>
                 </div>
 
-                {/* Date */}
                 <span style={{ fontSize: 12, color: 'rgba(245,245,240,0.35)' }}>{order.date}</span>
 
-                {/* Total */}
                 <span className="font-display" style={{ fontSize: 20, color: '#f5f5f0' }}>₹{order.total.toLocaleString()}</span>
 
-                {/* Status dropdown */}
                 <div style={{ position: 'relative' }}>
                   <select value={order.status} onChange={e => handleStatus(order.id, e.target.value as OrderStatus)} disabled={isUpdating}
                     style={{ width: '100%', appearance: 'none', background: s.bg, color: s.color, border: `1px solid ${s.border}`, padding: '6px 28px 6px 10px', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', outline: 'none', fontFamily: 'Montserrat', borderRadius: 0, opacity: isUpdating ? 0.5 : 1 }}>
@@ -144,31 +151,24 @@ export default function AdminOrders() {
                   <ChevronDown size={10} color={s.color} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                 </div>
 
-                {/* Quick Approve / Dismiss — only show for pending */}
-                {order.status === 'pending' && (
+                {order.status === 'pending' ? (
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button onClick={() => handleStatus(order.id, 'processing')} disabled={isUpdating}
-                      style={{ padding: '6px 12px', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', color: '#22c55e', fontSize: 9, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Montserrat', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(34,197,94,0.2)'}
-                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'rgba(34,197,94,0.12)'}>
+                      style={{ padding: '6px 10px', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', color: '#22c55e', fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Montserrat', whiteSpace: 'nowrap' }}>
                       ✓ Approve
                     </button>
                     <button onClick={() => handleStatus(order.id, 'cancelled')} disabled={isUpdating}
-                      style={{ padding: '6px 12px', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', color: '#f87171', fontSize: 9, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Montserrat', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(248,113,113,0.15)'}
-                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'rgba(248,113,113,0.08)'}>
+                      style={{ padding: '6px 10px', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', color: '#f87171', fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Montserrat', whiteSpace: 'nowrap' }}>
                       ✕ Dismiss
                     </button>
                   </div>
-                )}
+                ) : <div />}
 
-                {/* Expand */}
                 <button onClick={() => setExpanded(isExpanded ? null : order.id)}
                   style={{ width: 32, height: 32, background: isExpanded ? 'rgba(34,197,94,0.1)' : 'rgba(245,245,240,0.04)', border: `1px solid ${isExpanded ? 'rgba(34,197,94,0.2)' : 'rgba(245,245,240,0.06)'}`, cursor: 'pointer', color: isExpanded ? '#22c55e' : 'rgba(245,245,240,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
                   {isExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                 </button>
 
-                {/* Delete */}
                 <button onClick={() => handleDelete(order.id)}
                   style={{ width: 32, height: 32, background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.1)', cursor: 'pointer', color: 'rgba(248,113,113,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(248,113,113,0.1)'; (e.currentTarget as HTMLElement).style.color = '#f87171' }}
@@ -180,54 +180,95 @@ export default function AdminOrders() {
               {/* Expanded detail */}
               {isExpanded && (
                 <div style={{ padding: '0 20px 20px', borderTop: '1px solid rgba(245,245,240,0.04)', background: 'rgba(245,245,240,0.01)' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, paddingTop: 20 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 20 }}>
 
-                    {/* Contact & Address */}
-                    <div style={{ background: '#111', border: '1px solid rgba(245,245,240,0.05)', padding: 20 }}>
-                      <p style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(245,245,240,0.25)', marginBottom: 14, fontWeight: 700 }}>Contact & Delivery</p>
-                      {[
-                        ['Name', order.customer],
-                        ['Email', order.email],
-                        ['Phone', order.phone],
-                        ['Address', order.address],
-                        ['City', order.city],
-                      ].map(([k, v]) => v && (
-                        <div key={k} style={{ display: 'flex', gap: 12, padding: '6px 0', borderBottom: '1px solid rgba(245,245,240,0.04)', fontSize: 12 }}>
-                          <span style={{ color: 'rgba(245,245,240,0.25)', minWidth: 60 }}>{k}</span>
-                          <span style={{ color: '#f5f5f0', fontWeight: 600 }}>{v}</span>
+                    {/* AWB Tracking */}
+                    <div style={{ background: '#111', border: '1px solid rgba(245,245,240,0.05)', padding: 16 }}>
+                      <p style={{ fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(245,245,240,0.25)', marginBottom: 12, fontWeight: 700 }}>Shipment Tracking</p>
+                      {(order as any).awbId ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                          <div style={{ display: 'flex', gap: 10, padding: '8px 14px', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                            <span style={{ fontSize: 11, color: 'rgba(245,245,240,0.4)' }}>AWB</span>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', fontFamily: 'Space Mono' }}>{(order as any).awbId}</span>
+                          </div>
+                          <a href={(order as any).trackingUrl} target="_blank" rel="noopener noreferrer"
+                            style={{ fontSize: 11, fontWeight: 700, color: '#60a5fa', textDecoration: 'none', padding: '8px 14px', border: '1px solid rgba(96,165,250,0.2)', background: 'rgba(96,165,250,0.06)' }}>
+                            Track on Delhivery →
+                          </a>
+                          <span style={{ fontSize: 10, color: 'rgba(245,245,240,0.2)' }}>Status auto-set to Shipped</span>
                         </div>
-                      ))}
-                      {order.paymentStatus && (
-                        <div style={{ display: 'flex', gap: 12, padding: '6px 0', fontSize: 12, marginTop: 8 }}>
-                          <span style={{ color: 'rgba(245,245,240,0.25)', minWidth: 60 }}>Payment</span>
-                          <span style={{ color: order.paymentStatus === 'paid' ? '#22c55e' : '#eab308', fontWeight: 700, textTransform: 'uppercase', fontSize: 10, letterSpacing: '0.1em' }}>{order.paymentStatus}</span>
+                      ) : (
+                        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                          <input
+                            value={awbInput[order.id] || ''}
+                            onChange={e => setAwbInput(p => ({ ...p, [order.id]: e.target.value }))}
+                            placeholder="Enter AWB / tracking ID..."
+                            style={{ background: '#0d0d0d', border: '1px solid rgba(245,245,240,0.07)', padding: '9px 14px', fontSize: 12, color: '#f5f5f0', outline: 'none', fontFamily: 'Montserrat', width: 220, transition: 'border-color 0.2s' }}
+                            onFocus={e => (e.target.style.borderColor = 'rgba(96,165,250,0.4)')}
+                            onBlur={e => (e.target.style.borderColor = 'rgba(245,245,240,0.07)')}
+                            onKeyDown={e => { if (e.key === 'Enter') handleSaveAwb(order.id) }}
+                          />
+                          <button
+                            disabled={!awbInput[order.id]?.trim() || savingAwb === order.id}
+                            onClick={() => handleSaveAwb(order.id)}
+                            style={{ padding: '9px 16px', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat', opacity: !awbInput[order.id]?.trim() ? 0.5 : 1, transition: 'all 0.2s' }}>
+                            {savingAwb === order.id ? 'Saving...' : 'Save AWB'}
+                          </button>
+                          <span style={{ fontSize: 10, color: 'rgba(245,245,240,0.2)' }}>Auto-sets status to Shipped</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Items */}
-                    <div style={{ background: '#111', border: '1px solid rgba(245,245,240,0.05)', padding: 20 }}>
-                      <p style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(245,245,240,0.25)', marginBottom: 14, fontWeight: 700 }}>Items Ordered</p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        {order.items.map((item, idx) => (
-                          <div key={idx} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                            {item.productImage && (
-                              <div style={{ width: 40, height: 40, background: '#0d0d0d', border: '1px solid rgba(245,245,240,0.06)', position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
-                                <img src={item.productImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              </div>
-                            )}
-                            <div style={{ flex: 1 }}>
-                              <p style={{ fontSize: 12, fontWeight: 700, color: '#f5f5f0', lineHeight: 1.3 }}>{item.productBrand} {item.productName}</p>
-                              <p style={{ fontSize: 10, color: 'rgba(245,245,240,0.3)', marginTop: 2 }}>UK {item.selectedSize} · Qty {item.quantity}</p>
-                            </div>
-                            <span className="font-display" style={{ fontSize: 18, color: '#f5f5f0', flexShrink: 0 }}>₹{(item.price * item.quantity).toLocaleString()}</span>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+
+                      {/* Contact */}
+                      <div style={{ background: '#111', border: '1px solid rgba(245,245,240,0.05)', padding: 20 }}>
+                        <p style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(245,245,240,0.25)', marginBottom: 14, fontWeight: 700 }}>Contact & Delivery</p>
+                        {[
+                          ['Name', order.customer],
+                          ['Email', order.email],
+                          ['Phone', order.phone],
+                          ['Address', order.address],
+                          ['City', order.city],
+                        ].map(([k, v]) => v && (
+                          <div key={k} style={{ display: 'flex', gap: 12, padding: '6px 0', borderBottom: '1px solid rgba(245,245,240,0.04)', fontSize: 12 }}>
+                            <span style={{ color: 'rgba(245,245,240,0.25)', minWidth: 60 }}>{k}</span>
+                            <span style={{ color: '#f5f5f0', fontWeight: 600 }}>{v}</span>
                           </div>
                         ))}
+                        {order.paymentStatus && (
+                          <div style={{ display: 'flex', gap: 12, padding: '6px 0', fontSize: 12, marginTop: 8 }}>
+                            <span style={{ color: 'rgba(245,245,240,0.25)', minWidth: 60 }}>Payment</span>
+                            <span style={{ color: order.paymentStatus === 'paid' ? '#22c55e' : '#eab308', fontWeight: 700, textTransform: 'uppercase', fontSize: 10, letterSpacing: '0.1em' }}>{order.paymentStatus}</span>
+                          </div>
+                        )}
                       </div>
-                      <div style={{ borderTop: '1px solid rgba(245,245,240,0.06)', marginTop: 14, paddingTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: 12, color: 'rgba(245,245,240,0.35)' }}>Order Total</span>
-                        <span className="font-display" style={{ fontSize: 24, color: '#22c55e' }}>₹{order.total.toLocaleString()}</span>
+
+                      {/* Items */}
+                      <div style={{ background: '#111', border: '1px solid rgba(245,245,240,0.05)', padding: 20 }}>
+                        <p style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(245,245,240,0.25)', marginBottom: 14, fontWeight: 700 }}>Items Ordered</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          {order.items.map((item, idx) => (
+                            <div key={idx} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                              {item.productImage && (
+                                <div style={{ width: 40, height: 40, background: '#0d0d0d', border: '1px solid rgba(245,245,240,0.06)', flexShrink: 0, overflow: 'hidden' }}>
+                                  <img src={item.productImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                              )}
+                              <div style={{ flex: 1 }}>
+                                <p style={{ fontSize: 12, fontWeight: 700, color: '#f5f5f0', lineHeight: 1.3 }}>{item.productBrand} {item.productName}</p>
+                                <p style={{ fontSize: 10, color: 'rgba(245,245,240,0.3)', marginTop: 2 }}>UK {item.selectedSize} · Qty {item.quantity}</p>
+                              </div>
+                              <span className="font-display" style={{ fontSize: 18, color: '#f5f5f0', flexShrink: 0 }}>₹{(item.price * item.quantity).toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{ borderTop: '1px solid rgba(245,245,240,0.06)', marginTop: 14, paddingTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: 12, color: 'rgba(245,245,240,0.35)' }}>Order Total</span>
+                          <span className="font-display" style={{ fontSize: 24, color: '#22c55e' }}>₹{order.total.toLocaleString()}</span>
+                        </div>
                       </div>
+
                     </div>
                   </div>
                 </div>

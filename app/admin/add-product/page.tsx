@@ -347,26 +347,69 @@ export default function AddProductPage() {
 
           {/* Sizes */}
           <div style={section('#60a5fa')}>
-            <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#f5f5f0', marginBottom: 16 }}>{form.category === 'boots' ? 'Available Sizes (UK)' : 'Available Sizes'}</h2>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {(form.category === 'balls' ? ballSizes : form.category === 'gloves' ? gloveSizes : form.category === 'jerseys-jackets' ? apparelSizes : bootSizes).map(s => (
-                <button key={s} onClick={() => toggleSize(s)}
-                  style={{
-                    width: 52, 
-                    height: 44, 
-                    fontSize: 12, 
-                    fontWeight: 700, 
-                    background: selectedSizes.includes(s) ? '#22c55e' : 'transparent', 
-                    color: selectedSizes.includes(s) ? '#050505' : 'rgba(245,245,240,0.4)', 
-                    border: `1px solid ${selectedSizes.includes(s) ? '#22c55e' : 'rgba(245,245,240,0.08)'}`, 
-                    cursor: 'pointer', 
-                    transition: 'all 0.2s', 
-                    fontFamily: 'Montserrat' }}>
-                  {s}
-                </button>
-              ))}
+            <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#f5f5f0', marginBottom: 16 }}>
+              {form.category === 'essentials' ? 'Sizes / Variants' : form.category === 'boots' || form.category === 'gloves' ? 'Available Sizes (UK)' : 'Available Sizes'}
+              </h2>
+
+            {form.category === 'essentials' ? (
+              <div>
+                <p style={{ fontSize: 11, color: 'rgba(245,245,240,0.25)', marginBottom: 12 }}>Type a size or colour and press Enter to add it.</p>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                  <input
+                    id="essentials-input"
+                    placeholder="e.g. Red, XL, One Size, 500ml..."
+                    style={{ ...inp, flex: 1 }}
+                    onFocus={e => (e.target.style.borderColor = 'rgba(96,165,250,0.4)')}
+                    onBlur={e => (e.target.style.borderColor = 'rgba(245,245,240,0.07)')}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        const val = (e.target as HTMLInputElement).value.trim()
+                        if (val && !selectedSizes.includes(val)) {
+                          setSelectedSizes(p => [...p, val])
+                        }
+                          ;(e.target as HTMLInputElement).value = ''
+                      }
+                      }}
+                  />
+                  <button
+                    onClick={() => {
+                      const input = document.getElementById('essentials-input') as HTMLInputElement
+                      const val = input?.value.trim()
+                      if (val && !selectedSizes.includes(val)) {
+                        setSelectedSizes(p => [...p, val])
+                        input.value = ''
+                      }
+                    }}
+                    style={{ padding: '0 16px', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat', whiteSpace: 'nowrap' }}>
+                    + Add
+                  </button>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {selectedSizes.map(s => (
+                    <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa', fontSize: 12, fontWeight: 700 }}>
+                      {s}
+                      <button onClick={() => setSelectedSizes(p => p.filter(x => x !== s))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#60a5fa', fontSize: 14, lineHeight: 1, padding: 0, marginLeft: 2 }}>×</button>
+                    </div>
+                  ))}
+                </div>
+                </div>
+            ) : form.category === 'balls' ? (
+              <div>
+                <p style={{ fontSize: 12, color: 'rgba(245,245,240,0.35)' }}>Balls are always Size 5 — auto selected.</p>
+                <div style={{ marginTop: 10, display: 'inline-block', padding: '8px 20px', background: '#22c55e', color: '#050505', fontSize: 13, fontWeight: 700 }}>Size 5</div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {(form.category === 'boots' || form.category === 'gloves' ? bootSizes : apparelSizes).map(s => (
+                  <button key={s} onClick={() => toggleSize(s)}
+                    style={{ width: 52, height: 44, fontSize: 12, fontWeight: 700, background: selectedSizes.includes(s) ? '#22c55e' : 'transparent', color: selectedSizes.includes(s) ? '#050505' : 'rgba(245,245,240,0.4)', border: `1px solid ${selectedSizes.includes(s) ? '#22c55e' : 'rgba(245,245,240,0.08)'}`, cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'Montserrat' }}>
+                    {s}
+                  </button>
+                  ))}
+              </div>
+            )}
+            
             </div>
-          </div>
 
         </div>
 
