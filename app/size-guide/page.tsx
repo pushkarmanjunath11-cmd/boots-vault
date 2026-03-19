@@ -3,18 +3,24 @@ import Link from 'next/link'
 
 export default function SizeGuidePage() {
   const sizes = [
-    { uk:'6', us:'6.5', eu:'39', cm:'24' },
-    { uk:'6.5', us:'7', eu:'39.5', cm:'24.5' },
-    { uk:'7', us:'7.5', eu:'40.5', cm:'25' },
-    { uk:'7.5', us:'8', eu:'41', cm:'25.5' },
-    { uk:'8', us:'8.5', eu:'42', cm:'26' },
-    { uk:'8.5', us:'9', eu:'42.5', cm:'26.5' },
-    { uk:'9', us:'9.5', eu:'43', cm:'27' },
-    { uk:'9.5', us:'10', eu:'44', cm:'27.5' },
-    { uk:'10', us:'10.5', eu:'44.5', cm:'28' },
-    { uk:'10.5', us:'11', eu:'45', cm:'28.5' },
-    { uk:'11', us:'11.5', eu:'46', cm:'29' },
-  ]
+    { uk: '3',    us: '3.5',  eu: '35.5', cm: '21.5' },
+    { uk: '3.5',  us: '4',    eu: '36',   cm: '22' },
+    { uk: '4',    us: '4.5',  eu: '37',   cm: '22.5' },
+    { uk: '4.5',  us: '5',    eu: '37.5', cm: '23' },
+    { uk: '5',    us: '5.5',  eu: '38',   cm: '23.5' },
+    { uk: '5.5',  us: '6',    eu: '38.5', cm: '24' },
+    { uk: '6',    us: '6.5',  eu: '39',   cm: '24.5' },
+    { uk: '6.5',  us: '7',    eu: '39.5', cm: '25' },
+    { uk: '7',    us: '7.5',  eu: '40.5', cm: '25.5' },
+    { uk: '7.5',  us: '8',    eu: '41',   cm: '26' },
+    { uk: '8',    us: '8.5',  eu: '42',   cm: '26.5' },
+    { uk: '8.5',  us: '9',    eu: '42.5', cm: '27' },
+    { uk: '9',    us: '9.5',  eu: '43',   cm: '27.5' },
+    { uk: '9.5',  us: '10',   eu: '44',   cm: '28' },
+    { uk: '10',   us: '10.5', eu: '44.5', cm: '28.5' },
+    { uk: '10.5', us: '11',   eu: '45',   cm: '29' },
+    { uk: '11',   us: '11.5', eu: '46',   cm: '29.5' },
+  ] 
   return (
     <div style={{ background:'var(--bg)', minHeight:'100vh', paddingTop:68, fontFamily:'Montserrat,sans-serif' }}>
       <div style={{ maxWidth:800, margin:'0 auto', padding:'clamp(32px,5vw,60px) clamp(20px,4vw,40px)' }}>

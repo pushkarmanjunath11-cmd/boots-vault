@@ -3,10 +3,10 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Star, X, ChevronDown, SlidersHorizontal, ArrowRight } from 'lucide-react'
 import { subscribeProducts } from '@/lib/productService'
 import { products as staticProducts } from '@/lib/data'
 import { Product } from '@/types'
+import { Star, X, ChevronDown, SlidersHorizontal, ArrowRight, Search } from 'lucide-react'
 
 const sizes = ['3','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
 const apparelSizes = ['XS','S','M','L','XL']
@@ -61,10 +61,17 @@ function ShopContent() {
   const toggleBrand = (b: string) => setSelectedBrands(p => p.includes(b) ? p.filter(x => x !== b) : [...p, b])
   const toggleSize  = (s: string) => setSelectedSizes(p => p.includes(s) ? p.filter(x => x !== s) : [...p, s])
   const clearAll = () => { setSelectedBrands([]); setSelectedSizes([]) }
+  const [search, setSearch] = useState('')
 
   const currentCatLabel = cats.find(c => c.id === category)?.label || 'Products'
 
   let filtered = products.filter(p => {
+    // ✅ NULL CHECK
+    if (!p || !p.name || !p.price) return false
+
+    // ✅ SEARCH
+    if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.brand?.toLowerCase().includes(search.toLowerCase())) return false
+
     // ✅ CATEGORY
     if (category !== 'all' && p.category !== category) return false
 
@@ -89,7 +96,7 @@ function ShopContent() {
     if (selectedBrands.length && !selectedBrands.includes(p.brand)) return false
 
     // ✅ SIZE FILTER
-    if (selectedSizes.length && !selectedSizes.some(s => p.sizes.includes(s))) return false
+    if (selectedSizes.length && !(Array.isArray(p.sizes) && selectedSizes.some(s => p.sizes.includes(s)))) return false
 
     return true
   })
@@ -163,6 +170,18 @@ function ShopContent() {
 
         {/* Toolbar */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:24, gap:12, flexWrap:'wrap' }}>
+          {/* Search */}
+          <div style={{ position:'relative' }}>
+            <Search size={13} color="rgba(242,242,237,0.25)" style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', pointerEvents:'none' }} />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search boots..."
+              style={{ background:'var(--bg3)', border:'1px solid var(--border)', padding:'9px 14px 9px 32px', fontSize:11, color:'var(--white)', outline:'none', width:180, fontFamily:'Montserrat', transition:'border-color 0.2s' }}
+              onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.3)')}
+              onBlur={e => (e.target.style.borderColor='var(--border)')}
+            />
+          </div>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
             <button onClick={() => setFiltersOpen(!filtersOpen)} style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 16px', background: filtersOpen ? 'var(--green)' : 'var(--bg3)', border:`1px solid ${filtersOpen ? 'var(--green)' : 'var(--border)'}`, color: filtersOpen ? '#050505' : 'rgba(242,242,237,0.6)', fontSize:11, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', cursor:'pointer', transition:'all 0.2s', fontFamily:'Montserrat' }}>
               <SlidersHorizontal size={13} /> Filters {(selectedBrands.length + selectedSizes.length) > 0 && `(${selectedBrands.length + selectedSizes.length})`}

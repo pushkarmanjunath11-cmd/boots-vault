@@ -3,11 +3,9 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { ArrowRight, Star, Shield, Truck, RefreshCcw, BadgeCheck, Instagram, ChevronRight, Zap } from 'lucide-react'
-import { products } from '@/lib/data'
+import { subscribeProducts } from '@/lib/productService'
+import { Product } from '@/types'
 
-const allProducts = products.filter(p => p && p.name && p.price > 0)
-const featuredProducts = allProducts.filter(p => p.featured).slice(0, 6)
-const displayProducts = featuredProducts.length > 0 ? featuredProducts : allProducts.slice(0, 6)
 const brands = ['NIKE', 'ADIDAS', 'PUMA', 'NEW BALANCE', 'MIZUNO']
 
 const trust = [
@@ -92,30 +90,38 @@ function useTilt() {
 export default function HomePage() {
   const [loaded, setLoaded] = useState(false)
   const [scrollY, setScrollY] = useState(0)
+  const [displayProducts, setDisplayProducts] = useState<Product[]>([])
   useReveal(); useCountUp(); useTilt()
 
   useEffect(() => {
     setTimeout(() => setLoaded(true), 60)
     const onScroll = () => setScrollY(window.scrollY)
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    const unsub = subscribeProducts(data => {
+      const valid = data.filter(p => p && p.name && p.price > 0)
+      const featured = valid.filter(p => p.featured).slice(0, 6)
+      setDisplayProducts(featured.length > 0 ? featured : valid.slice(0, 6))
+    })
+    return () => { window.removeEventListener('scroll', onScroll); unsub() }
   }, [])
 
   return (
     <div style={{ background: 'var(--bg)' }}>
 
-      {/* ── HERO ── */}
-      <section style={{ position: 'relative', height: '100vh', minHeight: 600, overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
+     {/* ── HERO ── */}
+<section style={{ position: 'relative', height: '100vh', minHeight: 600, overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
 
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0a0a12 0%, #0f1a0f 40%, #080808 100%)' }} />
-          <div style={{ position: 'absolute', top: '-20%', left: '55%', width: '60%', height: '160%', background: 'linear-gradient(170deg, rgba(34,197,94,0.06) 0%, transparent 50%)', transform: 'rotate(-15deg)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(242,242,237,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(242,242,237,0.02) 1px, transparent 1px)', backgroundSize: '60px 60px', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 60% 50%, transparent 20%, rgba(8,8,8,0.7) 100%)' }} />
-        </div>
+  <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+    {/* Hero image */}
+    <img src="/hero.png" alt="" style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'contain', opacity: 0.55, filter:'brightness(1) saturate(0.7)', transform:`translateY(${scrollY * 0.25}px)`, zIndex: 1 }} />
+    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(10,10,18,0.85) 0%, rgba(15,26,15,0.6) 40%, rgba(8,8,8,0.3) 100%)' }} />
+    <div style={{ position: 'absolute', top: '-20%', left: '55%', width: '60%', height: '160%', background: 'linear-gradient(170deg, rgba(34,197,94,0.06) 0%, transparent 50%)', transform: 'rotate(-15deg)', pointerEvents: 'none' }} />
+    <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(242,242,237,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(242,242,237,0.02) 1px, transparent 1px)', backgroundSize: '60px 60px', pointerEvents: 'none' }} />
+    <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 60% 50%, transparent 20%, rgba(8,8,8,0.7) 100%)' }} />
+  </div>
 
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%', background: 'linear-gradient(to top, var(--bg), transparent)', zIndex: 2 }} />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent 5%, var(--green) 30%, rgba(212,175,55,0.5) 65%, transparent 95%)', zIndex: 10, animation: 'borderPulse 3s ease-in-out infinite' }} />
+  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%', background: 'linear-gradient(to top, var(--bg), transparent)', zIndex: 2 }} />
+  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent 5%, var(--green) 30%, rgba(212,175,55,0.5) 65%, transparent 95%)', zIndex: 10, animation: 'borderPulse 3s ease-in-out infinite' }} />
 
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 clamp(20px, 5vw, 48px) clamp(48px, 8vh, 80px)' }}>
@@ -153,7 +159,7 @@ export default function HomePage() {
               </div>
             </Link>
             <Link href="/shop?category=boots" style={{ textDecoration: 'none' }}>
-              <div className="btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 'clamp(12px,2vw,16px) clamp(16px,2vw,24px)', fontSize: 12, cursor: 'pointer' }}>
+              <div className="btn-ghost" style={{ display: 'flex', marginRight: '100px', alignItems: 'center', gap: 8, padding: 'clamp(12px,2vw,16px) clamp(16px,2vw,24px)', fontSize: 12, cursor: 'pointer' }}>
                 New Arrivals <ChevronRight size={13} />
               </div>
             </Link>
