@@ -5,7 +5,9 @@ import { addProduct } from '@/lib/productService'
 import { Plus, Trash2, Check, Upload } from 'lucide-react'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
-const sizes = ['3','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
+const bootSizes = ['3','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
+const ballSizes = ['5']
+const gloveSizes = ['3','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
 const apparelSizes = ['XS','S','M','L','XL']
 const brands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'Mizuno']
 const categories = [
@@ -56,6 +58,14 @@ export default function AddProductPage() {
     price: '', originalPrice: '', description: '', longDescription: '',
     inStock: true, featured: false, isNew: false,
   })
+
+  useEffect(() => {
+    if (form.category === 'balls') {
+      setSelectedSizes(['5'])
+    } else {
+      setSelectedSizes([])
+    }
+  }, [form.category])
 
   const handle = (e: any) => {
     const { name, value, type, checked } = e.target
@@ -339,7 +349,7 @@ export default function AddProductPage() {
           <div style={section('#60a5fa')}>
             <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#f5f5f0', marginBottom: 16 }}>{form.category === 'boots' ? 'Available Sizes (UK)' : 'Available Sizes'}</h2>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {(form.category === 'boots' ? sizes : apparelSizes).map(s => (
+              {(form.category === 'balls' ? ballSizes : form.category === 'gloves' ? gloveSizes : bootSizes).map(s => (
                 <button key={s} onClick={() => toggleSize(s)}
                   style={{
                     width: 52, 
