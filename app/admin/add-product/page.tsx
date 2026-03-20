@@ -400,7 +400,7 @@ export default function AddProductPage() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {(form.category === 'boots' || form.category === 'gloves' ? bootSizes : apparelSizes).map(s => (
+                {(form.category === 'boots' || form.category === 'gloves' ? gloveSizes : apparelSizes).map(s => (
                   <button key={s} onClick={() => toggleSize(s)}
                     style={{ width: 52, height: 44, fontSize: 12, fontWeight: 700, background: selectedSizes.includes(s) ? '#22c55e' : 'transparent', color: selectedSizes.includes(s) ? '#050505' : 'rgba(245,245,240,0.4)', border: `1px solid ${selectedSizes.includes(s) ? '#22c55e' : 'rgba(245,245,240,0.08)'}`, cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'Montserrat' }}>
                     {s}
