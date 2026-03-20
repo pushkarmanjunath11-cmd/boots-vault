@@ -26,9 +26,6 @@ const bootTypes = [
   { id:'all-boots', label:'All Boots' },
   { id:'trainers',  label:'Trainers' },
   { id: 'FG', label: 'Firm Ground (FG)' },
-  { id: 'SG', label: 'Soft Ground (SG)' },
-  { id: 'AG', label: 'Artificial Ground (AG)'},
-  { id: 'TF', label: 'Turf (TF)'},
 ]
 
 const jerseyjackets = [

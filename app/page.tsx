@@ -345,7 +345,7 @@ export default function HomePage() {
             <h3 className="font-display" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--white)' }}>@BOOTSVAULT</h3>
             <p style={{ fontSize: 13, color: 'rgba(242,242,237,0.3)', marginTop: 6 }}>Latest drops on Instagram</p>
           </div>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+          <a href="www.instagram.com/bootsvault.in" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 24px', background: 'linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)', color: '#fff', fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Montserrat' }}>
               <Instagram size={15} /> Follow
             </div>
