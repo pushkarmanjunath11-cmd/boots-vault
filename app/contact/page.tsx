@@ -22,8 +22,8 @@ export default function ContactPage() {
 
           <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
             {[
-              { icon:MessageCircle, color:'#22c55e', title:'WhatsApp', sub:'Fastest response', value:'+91 XXXXX XXXXX', link:'https://wa.me/91XXXXXXXXXX' },
-              { icon:Mail, color:'#60a5fa', title:'Email', sub:'Reply within 24hrs', value:'hello@bootsvault.in', link:'mailto:hello@bootsvault.in' },
+              { icon:MessageCircle, color:'#22c55e', title:'WhatsApp', sub:'Fastest response', value:'+91 7996097779', link:'https://wa.me/917996097779' },
+              { icon:Mail, color:'#60a5fa', title:'Email', sub:'Reply within 24hrs', value:'bootsvault.in@gmail.com', link:'mailto:bootsvault.in@gmail.com' },
               { icon:Clock, color:'#d4af37', title:'Business Hours', sub:'When we\'re available', value:'Mon–Sat · 10am–8pm IST', link:null },
               { icon:MapPin, color:'#c084fc', title:'Location', sub:'Based in', value:'Pune, Maharashtra, India', link:null },
             ].map(({ icon:Icon, color, title, sub, value, link }) => (
@@ -60,8 +60,8 @@ export default function ContactPage() {
                 <h2 style={{ fontSize:16, fontWeight:800, color:'var(--white)', marginBottom:20 }}>Send a Message</h2>
                 <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-                    <div><label style={lbl}>Name *</label><input name="name" value={form.name} onChange={handle} placeholder="Your name" style={inp} onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.4)')} onBlur={e => (e.target.style.borderColor='var(--border)')} /></div>
-                    <div><label style={lbl}>Email *</label><input name="email" type="email" value={form.email} onChange={handle} placeholder="your@email.com" style={inp} onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.4)')} onBlur={e => (e.target.style.borderColor='var(--border)')} /></div>
+                    <div><label style={lbl}>Name *</label><input name="name" value={form.name} onChange={handle} placeholder="Pushkar M" style={inp} onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.4)')} onBlur={e => (e.target.style.borderColor='var(--border)')} /></div>
+                    <div><label style={lbl}>Email *</label><input name="email" type="email" value={form.email} onChange={handle} placeholder="bootsvault.in@gmail.com" style={inp} onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.4)')} onBlur={e => (e.target.style.borderColor='var(--border)')} /></div>
                   </div>
                   <div><label style={lbl}>Subject</label><input name="subject" value={form.subject} onChange={handle} placeholder="What's this about?" style={inp} onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.4)')} onBlur={e => (e.target.style.borderColor='var(--border)')} /></div>
                   <div>

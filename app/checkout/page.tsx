@@ -76,7 +76,9 @@ export default function CheckoutPage() {
 
       // Redirect to Stripe
       const stripe = await stripePromise
-      await stripe?.redirectToCheckout({ sessionId })
+      if (stripe && sessionId) {
+        window.location.href = `https://checkout.stripe.com/pay/${sessionId}`
+      }
     } catch (e: any) {
       setError(e?.message || 'Payment failed. Please try again.')
       setLoading(false)
@@ -164,9 +166,9 @@ export default function CheckoutPage() {
               <>
                 <h2 className="font-display" style={{ fontSize: 28, color: 'var(--white)', marginBottom: 28 }}>CONTACT</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <div><label style={lbl}>Full Name *</label><input name="name" value={form.name} onChange={handle} onFocus={focusStyle} onBlur={blurStyle} placeholder="Your full name" style={inp} /></div>
-                  <div><label style={lbl}>Phone *</label><input name="phone" value={form.phone} onChange={handle} onFocus={focusStyle} onBlur={blurStyle} placeholder="+91 XXXXX XXXXX" style={inp} /></div>
-                  <div><label style={lbl}>Email *</label><input name="email" type="email" value={form.email} onChange={handle} onFocus={focusStyle} onBlur={blurStyle} placeholder="your@email.com" style={inp} /></div>
+                  <div><label style={lbl}>Full Name *</label><input name="name" value={form.name} onChange={handle} onFocus={focusStyle} onBlur={blurStyle} placeholder="Pushkar M" style={inp} /></div>
+                  <div><label style={lbl}>Phone *</label><input name="phone" value={form.phone} onChange={handle} onFocus={focusStyle} onBlur={blurStyle} placeholder="+91 7996097779" style={inp} /></div>
+                  <div><label style={lbl}>Email *</label><input name="email" type="email" value={form.email} onChange={handle} onFocus={focusStyle} onBlur={blurStyle} placeholder="bootsvault.in@gmail.com" style={inp} /></div>
                 </div>
                 <button onClick={() => form.name && form.phone && form.email && setStep('shipping')}
                   style={{ marginTop: 28, width: '100%', padding: '15px', fontFamily: 'Montserrat', cursor: 'pointer', opacity: form.name && form.phone && form.email ? 1 : 0.4 }}
