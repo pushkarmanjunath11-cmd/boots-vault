@@ -119,7 +119,7 @@ export default function HomePage() {
           <picture>
             <source media="(max-width: 768px)" srcSet="/hero-mobile.png" />
             <source media="(min-width: 769px)" srcSet="/hero-desktop.png" />
-            <img src="/hero-desktop.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55, filter: 'brightness(0.8) saturate(0.7)', transform: `translateY(${scrollY * 0.25}px)`, zIndex: 1 }} />
+            <img src="/hero-desktop.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', opacity: 0.55, filter: 'brightness(0.8) saturate(0.7)', transform: `translateY(${scrollY * 0.25}px)`, zIndex: 1 }} />
           </picture>
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(10,10,18,0.85) 0%, rgba(15,26,15,0.6) 40%, rgba(8,8,8,0.3) 100%)' }} />
           <div style={{ position: 'absolute', top: '-20%', left: '55%', width: '60%', height: '160%', background: 'linear-gradient(170deg, rgba(34,197,94,0.06) 0%, transparent 50%)', transform: 'rotate(-15deg)', pointerEvents: 'none' }} />
@@ -240,7 +240,7 @@ export default function HomePage() {
                     <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(34,197,94,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
                     <div className="font-display" style={{ position: 'absolute', bottom: -10, right: -10, fontSize: 100, color: 'rgba(242,242,237,0.025)', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>{p.brand?.[0] || 'B'}</div>
                     {p.images?.[0] ? (
-                      <img src={p.images[0]} alt={p.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} onError={e => (e.currentTarget.style.display = 'none')} />
+                      <img src={p.images[0]} alt={p.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} onError={e => (e.currentTarget.style.display = 'none')} />
                     ) : (
                       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span className="font-display" style={{ fontSize: 80, color: 'rgba(242,242,237,0.04)' }}>{p.brand?.[0] || 'B'}</span>
