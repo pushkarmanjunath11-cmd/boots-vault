@@ -114,12 +114,12 @@ export default function HomePage() {
     <div style={{ background: 'var(--bg)' }}>
 
       {/* ── HERO ── */}
-      <section style={{ position: 'relative', height: '100vh', minHeight: 600, overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
+      <section style={{ position: 'relative', height: '100svh', minHeight: '100svh', overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
           <picture>
             <source media="(max-width: 768px)" srcSet="/hero-mobile.png" />
             <source media="(min-width: 769px)" srcSet="/hero-desktop.png" />
-            <img src="/hero-desktop.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '90%', objectFit: 'contain', opacity: 0.55, filter: 'brightness(0.8) saturate(0.7)', transform: `translateY(${scrollY * 0.25}px)`, zIndex: 1 }} />
+            <img src="/hero-desktop.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55, filter: 'brightness(0.8) saturate(0.7)', transform: `translateY(${scrollY * 0.25}px)`, zIndex: 1 }} />
           </picture>
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(10,10,18,0.85) 0%, rgba(15,26,15,0.6) 40%, rgba(8,8,8,0.3) 100%)' }} />
           <div style={{ position: 'absolute', top: '-20%', left: '55%', width: '60%', height: '160%', background: 'linear-gradient(170deg, rgba(34,197,94,0.06) 0%, transparent 50%)', transform: 'rotate(-15deg)', pointerEvents: 'none' }} />
@@ -130,7 +130,7 @@ export default function HomePage() {
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%', background: 'linear-gradient(to top, var(--bg), transparent)', zIndex: 2 }} />
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent 5%, var(--green) 30%, rgba(212,175,55,0.5) 65%, transparent 95%)', zIndex: 10, animation: 'borderPulse 3s ease-in-out infinite' }} />
 
-        <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 clamp(20px, 5vw, 48px) clamp(48px, 8vh, 80px)' }}>
+        <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 1200, margin: '0 auto', padding: '80px clamp(20px, 5vw, 48px) clamp(48px, 8vh, 80px)' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.18)', marginBottom: 20, opacity: loaded ? 1 : 0, transition: 'opacity 0.7s 0.2s' }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 8px var(--green)' }} />
             <span style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--green)', fontWeight: 700 }}>Premium Football Boots · Pan India</span>
@@ -173,11 +173,11 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div style={{ position: 'absolute', right: 'clamp(16px,4vw,48px)', bottom: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, zIndex: 10, opacity: loaded ? 0.4 : 0, transition: 'opacity 1s 1.2s' }}>
-          <span style={{ fontSize: 8, letterSpacing: '0.4em', textTransform: 'uppercase', writingMode: 'vertical-rl' }}>Scroll</span>
-          <div style={{ width: 1, height: 48, background: 'linear-gradient(to bottom, var(--green), transparent)' }} />
-        </div>
-      </section>
+  <div style={{ position: 'absolute', right: 'clamp(16px,4vw,48px)', bottom: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, zIndex: 10, opacity: loaded ? 0.4 : 0, transition: 'opacity 1s 1.2s' }}>
+    <span style={{ fontSize: 8, letterSpacing: '0.4em', textTransform: 'uppercase', writingMode: 'vertical-rl' }}>Scroll</span>
+    <div style={{ width: 1, height: 48, background: 'linear-gradient(to bottom, var(--green), transparent)' }} />
+  </div>
+</section>
 
       {/* ── BRAND MARQUEE ── */}
       <div style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', overflow: 'hidden' }}>
