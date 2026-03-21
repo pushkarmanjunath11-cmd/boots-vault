@@ -60,8 +60,8 @@ export default function ContactPage() {
                 <h2 style={{ fontSize:16, fontWeight:800, color:'var(--white)', marginBottom:20 }}>Send a Message</h2>
                 <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-                    <div><label style={lbl}>Name *</label><input name="name" value={form.name} onChange={handle} placeholder="Pushkar M" style={inp} onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.4)')} onBlur={e => (e.target.style.borderColor='var(--border)')} /></div>
-                    <div><label style={lbl}>Email *</label><input name="email" type="email" value={form.email} onChange={handle} placeholder="bootsvault.in@gmail.com" style={inp} onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.4)')} onBlur={e => (e.target.style.borderColor='var(--border)')} /></div>
+                    <div><label style={lbl}>Name *</label><input name="name" value={form.name} onChange={handle} placeholder="Your Name Here" style={inp} onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.4)')} onBlur={e => (e.target.style.borderColor='var(--border)')} /></div>
+                    <div><label style={lbl}>Email *</label><input name="email" type="email" value={form.email} onChange={handle} placeholder="youremail@gmail.com" style={inp} onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.4)')} onBlur={e => (e.target.style.borderColor='var(--border)')} /></div>
                   </div>
                   <div><label style={lbl}>Subject</label><input name="subject" value={form.subject} onChange={handle} placeholder="What's this about?" style={inp} onFocus={e => (e.target.style.borderColor='rgba(34,197,94,0.4)')} onBlur={e => (e.target.style.borderColor='var(--border)')} /></div>
                   <div>
