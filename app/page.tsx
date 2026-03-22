@@ -4,21 +4,23 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { ArrowRight, Star, Shield, Truck, RefreshCcw, BadgeCheck, Instagram, ChevronRight, Zap } from 'lucide-react'
 import { subscribeProducts } from '@/lib/productService'
+import { useCartStore } from '@/lib/store'
 import { Product } from '@/types'
+import QuickViewModal from '@/components/ui/QuickViewModal'
 
 const brands = ['NIKE', 'ADIDAS', 'PUMA', 'NEW BALANCE', 'MIZUNO']
 
 const trust = [
   { icon: BadgeCheck, title: 'Mastercopies', desc: 'Best quality mastercopies, identical to original elites.', color: '#22c55e' },
-  { icon: Truck,      title: 'Free Shipping',  desc: 'Free pan India delivery on every order, every time. No minimums.', color: '#60a5fa' },
-  { icon: RefreshCcw, title: '7-Day Returns',  desc: "Wrong size? No problem. Easy returns, no questions asked.", color: '#d4af37' },
-  { icon: Shield,     title: 'Secure Pay',     desc: 'Stripe-powered 256-bit SSL. Your card never touches our servers.', color: '#c084fc' },
+  { icon: Truck,      title: 'Free Shipping', desc: 'Free pan India delivery on every order, every time. No minimums.', color: '#60a5fa' },
+  { icon: RefreshCcw, title: '7-Day Returns', desc: 'Wrong size? No problem. Easy returns, no questions asked.', color: '#d4af37' },
+  { icon: Shield,     title: 'Secure Pay',    desc: 'Stripe-powered 256-bit SSL. Your card never touches our servers.', color: '#c084fc' },
 ]
 
 const reviews = [
-  { name: 'Arjun S.', city: 'Pune',      rating: 5, text: 'Absolutely insane quality. Arrived in 3 days, 100% identical texture and quality to orignials. Whole team is now ordering from here.', boot: 'Nike Mercurial Vapor 16' },
+  { name: 'Arjun S.', city: 'Pune',      rating: 5, text: 'Absolutely insane quality. Arrived in 3 days, 100% identical texture and quality to originals. Whole team is now ordering from here.', boot: 'Nike Mercurial Vapor 16' },
   { name: 'Rahul M.', city: 'Mumbai',    rating: 5, text: 'Size guide was spot on. The Predator Elite fits perfectly. Premium packaging too. Will 100% order again.', boot: 'Adidas Predator Elite' },
-  { name: 'Karan T.', city: 'Bangalore', rating: 5, text: "Best football boot store in India. Fair prices, fast shipping, swapped my size same day. Unbeatable.", boot: 'Puma Future 7' },
+  { name: 'Karan T.', city: 'Bangalore', rating: 5, text: 'Best football boot store in India. Fair prices, fast shipping, swapped my size same day. Unbeatable.', boot: 'Puma Future 7' },
 ]
 
 function useReveal() {
@@ -87,10 +89,62 @@ function useTilt() {
   }, [])
 }
 
+function FeaturedCard({ p, idx, onQuickView }: { p: Product; idx: number; onQuickView: (p: Product) => void }) {
+  const [hovered, setHovered] = useState(false)
+  const hasSecond = !!(p.images?.[1])
+  return (
+    <Link href={`/products/${p.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+      <div className="product-card tilt-card" style={{ transitionDelay: `${idx * 0.06}s`, position: 'relative', cursor: 'pointer' }}
+        onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+        <div className="glare" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5 }} />
+        <div style={{ height: 'clamp(180px,28vw,320px)', background: 'linear-gradient(135deg,var(--bg4),var(--bg3))', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(34,197,94,0.025) 1px, transparent 1px)', backgroundSize: '22px 22px', zIndex: 1 }} />
+          <div className="font-display" style={{ position: 'absolute', bottom: -10, right: -10, fontSize: 110, color: 'rgba(242,242,237,0.025)', lineHeight: 1, userSelect: 'none', pointerEvents: 'none', zIndex: 1 }}>{p.brand?.[0] || 'B'}</div>
+          {p.images?.[0] && <img src={p.images[0]} alt={p.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.45s', opacity: hovered && hasSecond ? 0 : 1, zIndex: 2 }} onError={e => (e.currentTarget.style.display = 'none')} />}
+          {hasSecond && <img src={p.images[1]} alt={p.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.45s', opacity: hovered ? 1 : 0, zIndex: 2 }} onError={e => (e.currentTarget.style.display = 'none')} />}
+          <div className="img-dark" style={{ zIndex: 3 }} />
+          <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', gap: 4, zIndex: 6 }}>
+            {p.isNew && <span style={{ background: 'var(--green)', color: '#050505', fontSize: 8, fontWeight: 800, letterSpacing: '0.2em', padding: '3px 7px' }}>NEW</span>}
+            {p.originalPrice && <span style={{ background: 'rgba(212,175,55,0.9)', color: '#050505', fontSize: 8, fontWeight: 800, padding: '3px 7px' }}>-{Math.round((1 - p.price / p.originalPrice) * 100)}%</span>}
+          </div>
+          <div style={{ position: 'absolute', bottom: 10, left: 10, zIndex: 6 }}>
+            <span style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(242,242,237,0.55)', fontWeight: 700, background: 'rgba(8,8,8,0.6)', backdropFilter: 'blur(8px)', padding: '3px 8px', border: '1px solid rgba(242,242,237,0.06)' }}>{p.brand}</span>
+          </div>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', zIndex: 10, transform: hovered ? 'translateY(0)' : 'translateY(100%)', transition: 'transform 0.3s cubic-bezier(0.22,1,0.36,1)' }}>
+            <button onClick={e => { e.preventDefault(); e.stopPropagation(); onQuickView(p) }}
+              style={{ padding: '11px 4px', background: 'var(--green)', color: '#050505', border: 'none', fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Montserrat' }}>Add to Cart</button>
+            <button onClick={e => { e.stopPropagation(); onQuickView(p) }}
+              style={{ width: '100%', padding: '11px 4px', background: 'rgba(8,8,8,0.9)', color: 'rgba(242,242,237,0.8)', border: 'none', borderLeft: '1px solid rgba(242,242,237,0.08)', fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Montserrat' }}>Quick View</button>
+            <button onClick={e => { e.preventDefault(); e.stopPropagation(); onQuickView(p) }}
+              style={{ width: '100%', padding: '11px 4px', background: 'rgba(8,8,8,0.9)', color: 'rgba(242,242,237,0.8)', border: 'none', borderLeft: '1px solid rgba(242,242,237,0.08)', fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Montserrat' }}>Buy Now</button>
+          </div>
+        </div>
+        <div style={{ padding: 'clamp(12px,2vw,18px)' }}>
+          <p style={{ fontSize: 'clamp(12px,1.8vw,15px)', fontWeight: 700, color: 'var(--white)', marginBottom: 4, lineHeight: 1.3 }}>{p.name}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 10 }}>
+            {[...Array(5)].map((_, i) => <Star key={i} size={9} fill={i < Math.floor(p.rating) ? '#d4af37' : 'none'} color={i < Math.floor(p.rating) ? '#d4af37' : 'rgba(242,242,237,0.1)'} />)}
+            <span style={{ fontSize: 9, color: '#d4af37', fontWeight: 600 }}>{p.rating}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <span className="font-display" style={{ fontSize: 'clamp(20px,3vw,24px)', color: 'var(--white)', lineHeight: 1 }}>₹{p.price.toLocaleString()}</span>
+              {p.originalPrice && <span style={{ fontSize: 10, color: 'rgba(242,242,237,0.22)', textDecoration: 'line-through', marginLeft: 6 }}>₹{p.originalPrice.toLocaleString()}</span>}
+            </div>
+            <div style={{ width: 32, height: 32, background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ArrowRight size={13} color="#050505" strokeWidth={2.5} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 export default function HomePage() {
   const [loaded, setLoaded] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [displayProducts, setDisplayProducts] = useState<Product[]>([])
+  const [quickView, setQuickView] = useState<Product | null>(null)
   useReveal(); useCountUp(); useTilt()
 
   useEffect(() => {
@@ -104,52 +158,41 @@ export default function HomePage() {
       const pool = featured.length > 0 ? featured : valid
       setDisplayProducts(shuffle(pool).slice(0, 6))
     })
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      unsub()
-    }
+    return () => { window.removeEventListener('scroll', onScroll); unsub() }
   }, [])
 
   return (
     <div style={{ background: 'var(--bg)' }}>
 
-      {/* ── HERO ── */}
-      <section style={{ position: 'relative', height: '100svh', minHeight: '100svh', overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
+      {/* HERO */}
+      <section style={{ position: 'relative', height: '100svh', minHeight: 600, overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-          <picture>
-            <source media="(max-width: 768px)" srcSet="/hero-mobile.png" />
-            <source media="(min-width: 769px)" srcSet="/hero-desktop.png" />
-            <img src="/hero-desktop.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', opacity: 0.55, filter: 'brightness(0.8) saturate(0.7)', transform: `translateY(${scrollY * 0.25}px)`, zIndex: 1 }} />
-          </picture>
+          <img src="/hero.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55, filter: 'brightness(1) saturate(0.7)', transform: `translateY(${scrollY * 0.25}px)`, zIndex: 1 }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(10,10,18,0.85) 0%, rgba(15,26,15,0.6) 40%, rgba(8,8,8,0.3) 100%)' }} />
           <div style={{ position: 'absolute', top: '-20%', left: '55%', width: '60%', height: '160%', background: 'linear-gradient(170deg, rgba(34,197,94,0.06) 0%, transparent 50%)', transform: 'rotate(-15deg)', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(242,242,237,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(242,242,237,0.02) 1px, transparent 1px)', backgroundSize: '60px 60px', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 60% 50%, transparent 20%, rgba(8,8,8,0.7) 100%)' }} />
         </div>
-
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%', background: 'linear-gradient(to top, var(--bg), transparent)', zIndex: 2 }} />
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent 5%, var(--green) 30%, rgba(212,175,55,0.5) 65%, transparent 95%)', zIndex: 10, animation: 'borderPulse 3s ease-in-out infinite' }} />
 
-        <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 1200, margin: '0 auto', padding: '80px clamp(20px, 5vw, 48px) clamp(48px, 8vh, 80px)' }}>
+        <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 clamp(20px,5vw,48px) clamp(48px,8vh,80px)' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.18)', marginBottom: 20, opacity: loaded ? 1 : 0, transition: 'opacity 0.7s 0.2s' }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 8px var(--green)' }} />
             <span style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--green)', fontWeight: 700 }}>Premium Football Boots · Pan India</span>
           </div>
-
           <div style={{ overflow: 'hidden', marginBottom: 4 }}>
-            <h1 className="font-display" style={{ fontSize: 'clamp(36px, 9vw, 148px)', lineHeight: 0.88, color: 'var(--white)', opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.3s', display: 'block' }}>DOMINATE</h1>
+            <h1 className="font-display" style={{ fontSize: 'clamp(36px,9vw,148px)', lineHeight: 0.88, color: 'var(--white)', opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.3s', display: 'block' }}>DOMINATE</h1>
           </div>
           <div style={{ overflow: 'hidden', marginBottom: 4 }}>
-            <h1 className="font-display text-gradient" style={{ fontSize: 'clamp(36px, 9vw, 148px)', lineHeight: 0.88, opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.45s', display: 'block' }}>EVERY</h1>
+            <h1 className="font-display text-gradient" style={{ fontSize: 'clamp(36px,9vw,148px)', lineHeight: 0.88, opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.45s', display: 'block' }}>EVERY</h1>
           </div>
           <div style={{ overflow: 'hidden', marginBottom: 24 }}>
-            <h1 className="font-display" style={{ fontSize: 'clamp(36px, 9vw, 148px)', lineHeight: 0.88, color: 'var(--white)', opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.6s', display: 'block' }}>GAME</h1>
+            <h1 className="font-display" style={{ fontSize: 'clamp(36px,9vw,148px)', lineHeight: 0.88, color: 'var(--white)', opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(60px)', transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.6s', display: 'block' }}>GAME</h1>
           </div>
-
-          <p style={{ fontSize: 'clamp(13px, 2vw, 15px)', color: 'rgba(242,242,237,0.45)', lineHeight: 1.8, marginBottom: 28, maxWidth: 420, fontWeight: 300, opacity: loaded ? 1 : 0, transition: 'opacity 0.9s 0.65s' }}>
+          <p style={{ fontSize: 'clamp(13px,2vw,15px)', color: 'rgba(242,242,237,0.45)', lineHeight: 1.8, marginBottom: 28, maxWidth: 420, fontWeight: 300, opacity: loaded ? 1 : 0, transition: 'opacity 0.9s 0.65s' }}>
             Premium football boots from Nike, Adidas, Puma and more — authenticated and delivered anywhere in India.
           </p>
-
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', opacity: loaded ? 1 : 0, transition: 'opacity 0.9s 0.8s' }}>
             <Link href="/shop" style={{ textDecoration: 'none' }}>
               <div className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 'clamp(12px,2vw,16px) clamp(20px,3vw,36px)', fontSize: 12, cursor: 'pointer' }}>
@@ -162,7 +205,6 @@ export default function HomePage() {
               </div>
             </Link>
           </div>
-
           <div style={{ display: 'flex', gap: 'clamp(16px,4vw,32px)', marginTop: 36, opacity: loaded ? 1 : 0, transition: 'opacity 0.9s 1s', overflowX: 'auto', paddingBottom: 4 }}>
             {[['500+', 'Boots Sold'], ['100%', 'Identical texture and quality to originals'], ['4.9★', 'Rating']].map(([n, l]) => (
               <div key={l} style={{ borderLeft: '2px solid rgba(34,197,94,0.3)', paddingLeft: 14, flexShrink: 0 }}>
@@ -172,14 +214,13 @@ export default function HomePage() {
             ))}
           </div>
         </div>
+        <div style={{ position: 'absolute', right: 'clamp(16px,4vw,48px)', bottom: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, zIndex: 10, opacity: loaded ? 0.4 : 0, transition: 'opacity 1s 1.2s' }}>
+          <span style={{ fontSize: 8, letterSpacing: '0.4em', textTransform: 'uppercase', writingMode: 'vertical-rl' }}>Scroll</span>
+          <div style={{ width: 1, height: 48, background: 'linear-gradient(to bottom, var(--green), transparent)' }} />
+        </div>
+      </section>
 
-  <div style={{ position: 'absolute', right: 'clamp(16px,4vw,48px)', bottom: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, zIndex: 10, opacity: loaded ? 0.4 : 0, transition: 'opacity 1s 1.2s' }}>
-    <span style={{ fontSize: 8, letterSpacing: '0.4em', textTransform: 'uppercase', writingMode: 'vertical-rl' }}>Scroll</span>
-    <div style={{ width: 1, height: 48, background: 'linear-gradient(to bottom, var(--green), transparent)' }} />
-  </div>
-</section>
-
-      {/* ── BRAND MARQUEE ── */}
+      {/* BRAND MARQUEE */}
       <div style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', overflow: 'hidden' }}>
         <div style={{ height: 48, display: 'flex', alignItems: 'center' }}>
           <div className="animate-marquee" style={{ display: 'flex', width: 'max-content', alignItems: 'center' }}>
@@ -193,9 +234,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── STATS ── */}
+      {/* STATS */}
       <div style={{ background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 clamp(20px,4vw,48px)', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 clamp(20px,4vw,48px)', display: 'grid', gridTemplateColumns: 'repeat(2,1fr)' }}>
           {[
             { n: 500, suffix: '+', label: 'Boots Sold' },
             { n: 100, suffix: '%', label: 'Identical texture and quality' },
@@ -212,7 +253,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── FEATURED PRODUCTS ── */}
+      {/* FEATURED PRODUCTS */}
       <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(40px,6vw,96px) clamp(20px,4vw,48px)' }}>
         <div className="reveal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 32, flexWrap: 'wrap', gap: 12 }}>
           <div>
@@ -225,63 +266,20 @@ export default function HomePage() {
             </div>
           </Link>
         </div>
-
         {displayProducts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0' }}>
-            <p className="font-display" style={{ fontSize: 32, color: 'rgba(242,242,237,0.06)', marginBottom: 12 }}>LOADING...</p>
+            <p className="font-display" style={{ fontSize: 28, color: 'rgba(242,242,237,0.06)' }}>LOADING...</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, calc(50% - 8px)), 1fr))', gap: 'clamp(8px,2vw,16px)' }}>
-            {displayProducts.map((p, idx) => (
-              <Link key={p.id} href={`/products/${p.id}`} style={{ textDecoration: 'none' }}>
-                <div className="product-card tilt-card" style={{ opacity: 1 }}>
-                  <div className="glare" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5 }} />
-                  <div style={{ height: 'clamp(160px,25vw,260px)', background: 'linear-gradient(135deg, var(--bg4) 0%, var(--bg3) 100%)', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(34,197,94,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-                    <div className="font-display" style={{ position: 'absolute', bottom: -10, right: -10, fontSize: 100, color: 'rgba(242,242,237,0.025)', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>{p.brand?.[0] || 'B'}</div>
-                    {p.images?.[0] ? (
-                      <img src={p.images[0]} alt={p.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} onError={e => (e.currentTarget.style.display = 'none')} />
-                    ) : (
-                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span className="font-display" style={{ fontSize: 80, color: 'rgba(242,242,237,0.04)' }}>{p.brand?.[0] || 'B'}</span>
-                      </div>
-                    )}
-                    <div className="img-dark" />
-                    <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 5, zIndex: 6 }}>
-                      {p.isNew && <span style={{ background: 'var(--green)', color: '#050505', fontSize: 8, fontWeight: 800, letterSpacing: '0.2em', padding: '3px 7px' }}>NEW</span>}
-                      {p.originalPrice && <span style={{ background: 'rgba(212,175,55,0.9)', color: '#050505', fontSize: 8, fontWeight: 800, padding: '3px 7px' }}>-{Math.round((1 - p.price / p.originalPrice) * 100)}%</span>}
-                    </div>
-                    <div style={{ position: 'absolute', bottom: 12, left: 12, zIndex: 6 }}>
-                      <span style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(242,242,237,0.55)', fontWeight: 700, background: 'rgba(8,8,8,0.6)', backdropFilter: 'blur(8px)', padding: '3px 8px', border: '1px solid rgba(242,242,237,0.06)' }}>{p.brand}</span>
-                    </div>
-                  </div>
-                  <div style={{ padding: 'clamp(12px,2vw,20px)' }}>
-                    <p style={{ fontSize: 'clamp(12px,1.8vw,15px)', fontWeight: 700, color: 'var(--white)', marginBottom: 6, lineHeight: 1.3 }}>{p.name}</p>
-                    <p style={{ fontSize: 11, color: 'rgba(242,242,237,0.3)', marginBottom: 10, lineHeight: 1.5 }}>{p.description}</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 12 }}>
-                      {[...Array(5)].map((_, i) => <Star key={i} size={9} fill={i < Math.floor(p.rating) ? '#d4af37' : 'none'} color={i < Math.floor(p.rating) ? '#d4af37' : 'rgba(242,242,237,0.1)'} />)}
-                      <span style={{ fontSize: 9, color: '#d4af37', fontWeight: 600 }}>{p.rating}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <span className="font-display" style={{ fontSize: 'clamp(20px,3vw,26px)', color: 'var(--white)', lineHeight: 1 }}>₹{p.price.toLocaleString()}</span>
-                        {p.originalPrice && <span style={{ fontSize: 10, color: 'rgba(242,242,237,0.22)', textDecoration: 'line-through', marginLeft: 6 }}>₹{p.originalPrice.toLocaleString()}</span>}
-                      </div>
-                      <div style={{ width: 32, height: 32, background: 'var(--green)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <ArrowRight size={13} color="#050505" strokeWidth={2.5} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px,calc(50% - 8px)),1fr))', gap: 'clamp(8px,2vw,16px)' }}>
+            {displayProducts.map((p, idx) => <FeaturedCard key={p.id} p={p} idx={idx} onQuickView={setQuickView} />)}
           </div>
         )}
       </section>
 
-      {/* ── TRUST BANNER ── */}
-      <div style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(110deg, #0a1a0a 0%, #080808 50%, #0f0a00 100%)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, var(--green), transparent)', animation: 'borderPulse 3s ease-in-out infinite' }} />
+      {/* TRUST BANNER */}
+      <div style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(110deg,#0a1a0a 0%,#080808 50%,#0f0a00 100%)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,var(--green),transparent)', animation: 'borderPulse 3s ease-in-out infinite' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(40px,6vw,80px) clamp(20px,4vw,48px)', display: 'flex', flexDirection: 'column', gap: 40 }}>
           <div className="reveal">
             <span className="section-tag">Why choose us</span>
@@ -295,7 +293,7 @@ export default function HomePage() {
               </div>
             </Link>
           </div>
-          <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+          <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12 }}>
             {trust.map(({ icon: Icon, title, desc, color }) => (
               <div key={title} className="card" style={{ padding: 'clamp(16px,2vw,24px)' }}>
                 <div style={{ width: 40, height: 40, background: `${color}10`, border: `1px solid ${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
@@ -309,7 +307,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── REVIEWS ── */}
+      {/* REVIEWS */}
       <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(40px,6vw,96px) clamp(20px,4vw,48px)' }}>
         <div className="reveal" style={{ textAlign: 'center', marginBottom: 40 }}>
           <span className="section-tag" style={{ margin: '0 auto 16px', display: 'table' }}>Customer Reviews</span>
@@ -317,7 +315,7 @@ export default function HomePage() {
             REAL PEOPLE.<br /><span className="text-gradient">REAL BOOTS.</span>
           </h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(300px,100%),1fr))', gap: 14 }}>
           {reviews.map(({ name, city, rating, text, boot }, i) => (
             <div key={name} className="card reveal" style={{ padding: 'clamp(20px,3vw,28px)', transitionDelay: `${i * 0.08}s` }}>
               <div className="font-display" style={{ fontSize: 56, lineHeight: 0.7, color: 'rgba(34,197,94,0.07)', marginBottom: 10 }}>"</div>
@@ -337,7 +335,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── INSTAGRAM ── */}
+      {/* INSTAGRAM */}
       <div style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)', padding: 'clamp(32px,5vw,52px) clamp(20px,4vw,48px)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
           <div className="reveal">
@@ -345,19 +343,19 @@ export default function HomePage() {
             <h3 className="font-display" style={{ fontSize: 'clamp(28px,4vw,40px)', color: 'var(--white)' }}>@BOOTSVAULT</h3>
             <p style={{ fontSize: 13, color: 'rgba(242,242,237,0.3)', marginTop: 6 }}>Latest drops on Instagram</p>
           </div>
-          <a href="www.instagram.com/bootsvault.in" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 24px', background: 'linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)', color: '#fff', fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Montserrat' }}>
+          <a href="https://instagram.com/bootsvault.in" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 24px', background: 'linear-gradient(135deg,#833ab4 0%,#fd1d1d 50%,#fcb045 100%)', color: '#fff', fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'Montserrat' }}>
               <Instagram size={15} /> Follow
             </div>
           </a>
         </div>
       </div>
 
-      {/* ── FINAL CTA ── */}
+      {/* FINAL CTA */}
       <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(32px,5vw,80px) clamp(20px,4vw,48px)' }}>
         <div className="reveal" style={{ position: 'relative', overflow: 'hidden', background: 'var(--bg2)', border: '1px solid rgba(34,197,94,0.12)', padding: 'clamp(40px,6vw,80px) clamp(24px,4vw,56px)', textAlign: 'center' }}>
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '80%', height: 200, background: 'radial-gradient(ellipse, rgba(34,197,94,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, var(--green), rgba(212,175,55,0.4), transparent)', animation: 'borderPulse 3s ease-in-out infinite' }} />
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '80%', height: 200, background: 'radial-gradient(ellipse,rgba(34,197,94,0.06) 0%,transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,transparent,var(--green),rgba(212,175,55,0.4),transparent)', animation: 'borderPulse 3s ease-in-out infinite' }} />
           <div style={{ position: 'absolute', top: 16, left: 16, width: 32, height: 32, borderTop: '1px solid rgba(34,197,94,0.25)', borderLeft: '1px solid rgba(34,197,94,0.25)' }} />
           <div style={{ position: 'absolute', bottom: 16, right: 16, width: 32, height: 32, borderBottom: '1px solid rgba(34,197,94,0.25)', borderRight: '1px solid rgba(34,197,94,0.25)' }} />
           <span className="section-tag" style={{ margin: '0 auto 16px', display: 'table' }}>Limited Stock</span>
@@ -381,7 +379,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
+    {quickView && <QuickViewModal product={quickView} onClose={() => setQuickView(null)} />}
     </div>
   )
 }

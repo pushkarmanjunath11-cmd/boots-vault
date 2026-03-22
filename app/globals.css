@@ -137,7 +137,8 @@ body {
   background: var(--bg3);
   border: 1px solid var(--border);
   transition: all 0.45s cubic-bezier(0.22,1,0.36,1);
-  position:relative; overflow:hidden;
+  position:relative; 
+  overflow:hidden;
   transform-style: preserve-3d;
 }
 .product-card:hover { border-color:rgba(34,197,94,0.2); box-shadow:0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,197,94,0.12); }
