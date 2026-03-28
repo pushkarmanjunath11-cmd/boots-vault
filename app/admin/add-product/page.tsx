@@ -6,10 +6,10 @@ import { Plus, Trash2, Check, Upload } from 'lucide-react'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 const bootSizes = ['3','3.5','4','4.5','5','5.5','6','6.5','7','7.5','8','8.5','9','9.5','10','10.5','11']
-const ballSizes = ['5']
 const gloveSizes = ['7','8','9','10']
 const apparelSizes = ['XS','S','M','L','XL']
-const brands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'Mizuno']
+const brands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'Mizuno', 'Umbro', 'Kappa', 'Hummel', 'Other']
+
 const categories = [
   { id: 'boots',           label: 'Boots' },
   { id: 'jerseys-jackets', label: 'Jerseys & Jackets' },
@@ -17,15 +17,22 @@ const categories = [
   { id: 'essentials',      label: 'Essentials' },
   { id: 'gloves',          label: 'Gloves' },
 ]
+
 const bootSubCategories = [
-  { id: 'trainers',  label: 'Trainers' },
-  { id: 'FG', label: 'Firm Ground (FG)' },
+  { id: 'trainers', label: 'Trainers' },
+  { id: 'FG',       label: 'Firm Ground (FG)' },
 ]
 
-const apparelSubCategories = [
-  { id: 'all-jersey-jackets', label: 'All Jerseys & Jackets' },
-  { id: 'jerseys', label: 'Jerseys' },
-  { id: 'jackets', label: 'Jackets' },
+const sleeveTypes = [
+  { id: 'five-sleeve',  label: 'Five Sleeves' },
+  { id: 'normal-fit',   label: 'Normal Fit' },
+  { id: 'full-sleeves', label: 'Full Sleeves' },
+]
+
+const jerseyCategories = [
+  { id: 'national-teams', label: 'National Teams' },
+  { id: 'club-teams',     label: 'Club Teams' },
+  { id: 'vintage',        label: 'Vintage' },
 ]
 
 const inp = {
@@ -52,16 +59,17 @@ export default function AddProductPage() {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [form, setForm] = useState({
     name: '', brand: brands[0], category: 'boots', subCategory: 'trainers',
+    apparelType: 'jerseys',
+    sleeveType: 'normal-fit',
+    jerseyCategory: 'club-teams',
+    year: '',
     price: '', originalPrice: '', description: '', longDescription: '',
     inStock: true, featured: false, isNew: false,
   })
 
   useEffect(() => {
-    if (form.category === 'balls') {
-      setSelectedSizes(['5'])
-    } else {
-      setSelectedSizes([])
-    }
+    if (form.category === 'balls') setSelectedSizes(['5'])
+    else setSelectedSizes([])
   }, [form.category])
 
   const handle = (e: any) => {
@@ -69,30 +77,29 @@ export default function AddProductPage() {
 
     if (name === 'category') {
       if (value === 'boots') {
-        setSelectedSizes([]) // ✅ reset sizes
-        setForm(f => ({
-          ...f,
-          category: value,
-          subCategory: 'trainers'
-        }))
+        setSelectedSizes([])
+        setForm(f => ({ ...f, category: value, subCategory: 'trainers' }))
         return
       }
-
       if (value === 'jerseys-jackets') {
-        setSelectedSizes([]) // ✅ reset sizes
-        setForm(f => ({
-          ...f,
-          category: value,
-          subCategory: 'jerseys'
-        }))
+        setSelectedSizes([])
+        setForm(f => ({ ...f, category: value, subCategory: 'jerseys', apparelType: 'jerseys' }))
         return
       }
     }
 
-    setForm(f => ({
-      ...f,
-      [name]: type === 'checkbox' ? checked : value
-    }))
+    if (name === 'apparelType') {
+      setForm(f => ({
+        ...f,
+        apparelType: value,
+        subCategory: value,
+        sleeveType: value === 'jerseys' ? 'normal-fit' : f.sleeveType,
+        jerseyCategory: value === 'jerseys' ? 'club-teams' : f.jerseyCategory,
+      }))
+      return
+    }
+
+    setForm(f => ({ ...f, [name]: type === 'checkbox' ? checked : value }))
   }
 
   const addImageSlot = () => setImages(p => [...p, ''])
@@ -110,25 +117,28 @@ export default function AddProductPage() {
       updateImage(i, url)
     } catch (e) {
       console.error('Upload failed:', e)
-      alert('Upload failed. Make sure Firebase Storage is enabled in Firebase Console → Storage.')
+      alert('Upload failed. Make sure Firebase Storage is enabled.')
     }
     setUploadingIdxs(p => p.filter(x => x !== i))
   }
+
+  const isJersey = form.category === 'jerseys-jackets' && form.apparelType === 'jerseys'
 
   const save = async () => {
     if (!form.name || !form.price || selectedSizes.length === 0) {
       alert('Please fill in name, price, and select at least one size.')
       return
     }
-
     setSaving(true)
-
     try {
       await addProduct({
         name: form.name,
         brand: form.brand,
         category: form.category,
-        subCategory: form.subCategory,
+        subCategory: form.category === 'jerseys-jackets' ? form.apparelType : form.subCategory,
+        ...(isJersey && { sleeveType: form.sleeveType }),
+        ...(isJersey && { jerseyCategory: form.jerseyCategory }),
+        ...(isJersey && form.year && { year: form.year }),
         price: Number(form.price),
         originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
         images: images.filter(Boolean),
@@ -146,30 +156,18 @@ export default function AddProductPage() {
 
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
-
-      // reset form
       setForm({
-        name: '',
-        brand: brands[0],
-        category: 'boots',
-        subCategory: 'trainers',
-        price: '',
-        originalPrice: '',
-        description: '',
-        longDescription: '',
-        inStock: true,
-        featured: false,
-        isNew: false,
+        name: '', brand: brands[0], category: 'boots', subCategory: 'trainers',
+        apparelType: 'jerseys', sleeveType: 'normal-fit', jerseyCategory: 'club-teams',
+        year: '', price: '', originalPrice: '', description: '', longDescription: '',
+        inStock: true, featured: false, isNew: false,
       })
-
       setImages(['', '', ''])
       setSelectedSizes([])
-
     } catch (e) {
       console.error(e)
       alert('Failed to save product.')
     }
-
     setSaving(false)
   }
 
@@ -220,6 +218,7 @@ export default function AddProductPage() {
                 </div>
               </div>
 
+              {/* Boots sub-type */}
               {form.category === 'boots' && (
                 <div>
                   <label style={lbl}>Boot Type</label>
@@ -229,19 +228,57 @@ export default function AddProductPage() {
                 </div>
               )}
 
+              {/* Jerseys & Jackets — apparel type */}
               {form.category === 'jerseys-jackets' && (
                 <div>
                   <label style={lbl}>Apparel Type</label>
-                  <select
-                    name="subCategory"
-                    value={form.subCategory}
-                    onChange={handle}
-                    style={inp}
-                  >
-                    <option value="jerseys">Jerseys</option>
-                    <option value="jackets">Jackets</option>
+                  <select name="apparelType" value={form.apparelType} onChange={handle} style={{ ...inp, cursor: 'pointer' }}>
+                    <option value="jerseys" style={{ background: '#0d0d0d' }}>Jerseys</option>
+                    <option value="jackets" style={{ background: '#0d0d0d' }}>Jackets</option>
                   </select>
                 </div>
+              )}
+
+              {/* Jersey-only fields */}
+              {isJersey && (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div>
+                      <label style={lbl}>Sleeve Type</label>
+                      <select name="sleeveType" value={form.sleeveType} onChange={handle} style={{ ...inp, cursor: 'pointer' }}>
+                        {sleeveTypes.map(s => <option key={s.id} value={s.id} style={{ background: '#0d0d0d' }}>{s.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={lbl}>Jersey Category</label>
+                      <select name="jerseyCategory" value={form.jerseyCategory} onChange={handle} style={{ ...inp, cursor: 'pointer' }}>
+                        {jerseyCategories.map(c => <option key={c.id} value={c.id} style={{ background: '#0d0d0d' }}>{c.label}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={lbl}>Year (optional)</label>
+                    <input name="year" value={form.year} onChange={handle} placeholder="e.g. 1998" style={inp}
+                      onFocus={e => (e.target.style.borderColor = 'rgba(34,197,94,0.4)')}
+                      onBlur={e => (e.target.style.borderColor = 'rgba(245,245,240,0.07)')} />
+                  </div>
+
+                  {/* Live preview tags */}
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#60a5fa', background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)', padding: '3px 10px', letterSpacing: '0.1em' }}>
+                      {sleeveTypes.find(s => s.id === form.sleeveType)?.label}
+                    </span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#c084fc', background: 'rgba(192,132,252,0.08)', border: '1px solid rgba(192,132,252,0.2)', padding: '3px 10px', letterSpacing: '0.1em' }}>
+                      {jerseyCategories.find(c => c.id === form.jerseyCategory)?.label}
+                    </span>
+                    {form.year && (
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#d4af37', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', padding: '3px 10px', letterSpacing: '0.1em' }}>
+                        {form.year}
+                      </span>
+                    )}
+                  </div>
+                </>
               )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -288,8 +325,6 @@ export default function AddProductPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {images.map((img, i) => (
                 <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-
-                  {/* Preview */}
                   <div style={{ width: 64, height: 64, background: '#0a0a0a', border: '1px solid rgba(245,245,240,0.07)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {uploadingIdxs.includes(i) ? (
                       <div style={{ width: 22, height: 22, border: '2px solid rgba(245,245,240,0.1)', borderTopColor: '#22c55e', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
@@ -299,39 +334,18 @@ export default function AddProductPage() {
                       <Upload size={18} color="rgba(245,245,240,0.12)" />
                     )}
                   </div>
-
-                  {/* Inputs */}
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-
-                    {/* Upload button */}
                     <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 14px', background: uploadingIdxs.includes(i) ? 'rgba(34,197,94,0.05)' : 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', cursor: uploadingIdxs.includes(i) ? 'not-allowed' : 'pointer', fontSize: 11, fontWeight: 700, color: uploadingIdxs.includes(i) ? 'rgba(34,197,94,0.4)' : '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: 'Montserrat', transition: 'all 0.2s' }}>
                       <Upload size={13} />
                       {uploadingIdxs.includes(i) ? 'Uploading...' : 'Upload from Computer'}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        disabled={uploadingIdxs.includes(i)}
-                        onChange={e => {
-                          const file = e.target.files?.[0]
-                          if (file) handleFileUpload(i, file)
-                          e.target.value = ''
-                        }}
-                      />
+                      <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploadingIdxs.includes(i)}
+                        onChange={e => { const file = e.target.files?.[0]; if (file) handleFileUpload(i, file); e.target.value = '' }} />
                     </label>
-
-                    {/* URL input */}
-                    <input
-                      value={img}
-                      onChange={e => updateImage(i, e.target.value)}
-                      placeholder="Or paste image URL here"
+                    <input value={img} onChange={e => updateImage(i, e.target.value)} placeholder="Or paste image URL here"
                       style={{ ...inp, fontSize: 12 }}
                       onFocus={e => (e.target.style.borderColor = 'rgba(212,175,55,0.4)')}
-                      onBlur={e => (e.target.style.borderColor = 'rgba(245,245,240,0.07)')}
-                    />
+                      onBlur={e => (e.target.style.borderColor = 'rgba(245,245,240,0.07)')} />
                   </div>
-
-                  {/* Remove */}
                   {images.length > 1 && (
                     <button onClick={() => removeImageSlot(i)} style={{ padding: 8, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', cursor: 'pointer', color: '#f87171', flexShrink: 0, marginTop: 2 }}>
                       <Trash2 size={13} />
@@ -346,38 +360,27 @@ export default function AddProductPage() {
           <div style={section('#60a5fa')}>
             <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#f5f5f0', marginBottom: 16 }}>
               {form.category === 'essentials' ? 'Sizes / Variants' : form.category === 'boots' || form.category === 'gloves' ? 'Available Sizes (UK)' : 'Available Sizes'}
-              </h2>
+            </h2>
 
             {form.category === 'essentials' ? (
               <div>
                 <p style={{ fontSize: 11, color: 'rgba(245,245,240,0.25)', marginBottom: 12 }}>Type a size or colour and press Enter to add it.</p>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                  <input
-                    id="essentials-input"
-                    placeholder="e.g. Red, XL, One Size, 500ml..."
-                    style={{ ...inp, flex: 1 }}
+                  <input id="essentials-input" placeholder="e.g. Red, XL, One Size..." style={{ ...inp, flex: 1 }}
                     onFocus={e => (e.target.style.borderColor = 'rgba(96,165,250,0.4)')}
                     onBlur={e => (e.target.style.borderColor = 'rgba(245,245,240,0.07)')}
                     onKeyDown={e => {
                       if (e.key === 'Enter') {
                         const val = (e.target as HTMLInputElement).value.trim()
-                        if (val && !selectedSizes.includes(val)) {
-                          setSelectedSizes(p => [...p, val])
-                        }
-                          ;(e.target as HTMLInputElement).value = ''
+                        if (val && !selectedSizes.includes(val)) setSelectedSizes(p => [...p, val])
+                        ;(e.target as HTMLInputElement).value = ''
                       }
-                      }}
-                  />
-                  <button
-                    onClick={() => {
-                      const input = document.getElementById('essentials-input') as HTMLInputElement
-                      const val = input?.value.trim()
-                      if (val && !selectedSizes.includes(val)) {
-                        setSelectedSizes(p => [...p, val])
-                        input.value = ''
-                      }
-                    }}
-                    style={{ padding: '0 16px', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat', whiteSpace: 'nowrap' }}>
+                    }} />
+                  <button onClick={() => {
+                    const input = document.getElementById('essentials-input') as HTMLInputElement
+                    const val = input?.value.trim()
+                    if (val && !selectedSizes.includes(val)) { setSelectedSizes(p => [...p, val]); input.value = '' }
+                  }} style={{ padding: '0 16px', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)', color: '#60a5fa', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat', whiteSpace: 'nowrap' }}>
                     + Add
                   </button>
                 </div>
@@ -389,7 +392,7 @@ export default function AddProductPage() {
                     </div>
                   ))}
                 </div>
-                </div>
+              </div>
             ) : form.category === 'balls' ? (
               <div>
                 <p style={{ fontSize: 12, color: 'rgba(245,245,240,0.35)' }}>Balls are always Size 5 — auto selected.</p>
@@ -402,11 +405,10 @@ export default function AddProductPage() {
                     style={{ width: 52, height: 44, fontSize: 12, fontWeight: 700, background: selectedSizes.includes(s) ? '#22c55e' : 'transparent', color: selectedSizes.includes(s) ? '#050505' : 'rgba(245,245,240,0.4)', border: `1px solid ${selectedSizes.includes(s) ? '#22c55e' : 'rgba(245,245,240,0.08)'}`, cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'Montserrat' }}>
                     {s}
                   </button>
-                  ))}
+                ))}
               </div>
             )}
-            
-            </div>
+          </div>
 
         </div>
 
@@ -433,6 +435,25 @@ export default function AddProductPage() {
               </label>
             ))}
           </div>
+
+          {/* Jersey summary card */}
+          {isJersey && (
+            <div style={section('#c084fc')}>
+              <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#f5f5f0', marginBottom: 16 }}>Jersey Details</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {[
+                  { label: 'Sleeve', value: sleeveTypes.find(s => s.id === form.sleeveType)?.label },
+                  { label: 'Category', value: jerseyCategories.find(c => c.id === form.jerseyCategory)?.label },
+                  { label: 'Year', value: form.year || '—' },
+                ].map(({ label, value }) => (
+                  <div key={label}>
+                    <p style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(245,245,240,0.25)', fontWeight: 700, marginBottom: 3 }}>{label}</p>
+                    <p style={{ fontSize: 13, color: '#c084fc', fontWeight: 700 }}>{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <button onClick={save} disabled={saving}
             style={{ width: '100%', padding: 14, background: saved ? 'rgba(34,197,94,0.15)' : saving ? '#222' : '#22c55e', color: saved ? '#22c55e' : saving ? 'rgba(245,245,240,0.3)' : '#050505', border: saved ? '1px solid rgba(34,197,94,0.3)' : 'none', fontSize: 12, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'Montserrat', transition: 'all 0.3s' }}>
